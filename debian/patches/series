@@ -1,0 +1,7 @@
+extra/0001-addons-scripts-fix-ENV-for-interfaces-options.patch
+extra/0002-netlink-IFLA_BRPORT_ARP_SUPPRESS-use-32.patch
+extra/0003-add-vxlan-physdev-support.patch
+pve/0001-config-tuning.patch
+pve/0002-manual-interfaces-set-link-up.patch
+pve/0003-don-t-remove-tap-veth-fwpr-interfaces-from-bridge-on.patch
+pve/0004-add-dummy-mtu-bridgevlanport-modules.patch

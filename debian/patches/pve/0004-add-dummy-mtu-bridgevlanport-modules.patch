@@ -1,0 +1,85 @@
+From c77ca88f7d08789bddc4b43bafa23b38c0bd2d64 Mon Sep 17 00:00:00 2001
+From: Alexandre Derumier <aderumier@odiso.com>
+Date: Fri, 15 Jun 2018 00:36:03 +0200
+Subject: [PATCH] add dummy mtu, bridgevlanport modules
+
+As pve-manager package still provide ifupdown custom bridgevlanport && mtu script,
+we can override them with ifupdown2 addon scripts, doing nothing.
+
+(ifupdown2 don't launch an ifdown script, if an ifupdown2 addon script
+ exist with same name)
+---
+ etc/network/ifupdown2/addons.conf  |  3 +++
+ ifupdown2/addons/bridgevlanport.py | 17 +++++++++++++++++
+ ifupdown2/addons/mtu.py            | 17 +++++++++++++++++
+ 3 files changed, 37 insertions(+)
+ create mode 100644 ifupdown2/addons/bridgevlanport.py
+ create mode 100644 ifupdown2/addons/mtu.py
+
+diff --git a/etc/network/ifupdown2/addons.conf b/etc/network/ifupdown2/addons.conf
+index c0d1ce9..955b7d5 100644
+--- a/etc/network/ifupdown2/addons.conf
++++ b/etc/network/ifupdown2/addons.conf
+@@ -13,6 +13,8 @@ up,dhcp
+ up,address
+ up,addressvirtual
+ up,usercmds
++up,mtu
++up,bridgevlanport
+ post-up,usercmds
+ post-up,clagd
+ post-up,vxrd
+@@ -33,3 +35,4 @@ post-down,vlan
+ post-down,bond
+ post-down,usercmds
+ post-down,link
++
+diff --git a/ifupdown2/addons/bridgevlanport.py b/ifupdown2/addons/bridgevlanport.py
+new file mode 100644
+index 0000000..ab6a680
+--- /dev/null
++++ b/ifupdown2/addons/bridgevlanport.py
+@@ -0,0 +1,17 @@
++#!/usr/bin/python
++#
++
++import os
++
++try:
++    from ifupdown2.ifupdown.utils import utils
++
++    from ifupdown2.ifupdownaddons.modulebase import moduleBase
++except ImportError:
++    from ifupdown.utils import utils
++
++    from ifupdownaddons.modulebase import moduleBase
++
++class bridgevlanport(moduleBase):
++
++    _modinfo = {'mhelp' : 'dummy package to override proxmox script'}
+diff --git a/ifupdown2/addons/mtu.py b/ifupdown2/addons/mtu.py
+new file mode 100644
+index 0000000..efdf569
+--- /dev/null
++++ b/ifupdown2/addons/mtu.py
+@@ -0,0 +1,17 @@
++#!/usr/bin/python
++#
++
++import os
++
++try:
++    from ifupdown2.ifupdown.utils import utils
++
++    from ifupdown2.ifupdownaddons.modulebase import moduleBase
++except ImportError:
++    from ifupdown.utils import utils
++
++    from ifupdownaddons.modulebase import moduleBase
++
++class mtu(moduleBase):
++
++    _modinfo = {'mhelp' : 'dummy package to override proxmox script'}
+-- 
+2.11.0
+

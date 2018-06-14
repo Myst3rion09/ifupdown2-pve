@@ -1,0 +1,52 @@
+From 849e8213baa8483604a0de6a59695fd3dd98b248 Mon Sep 17 00:00:00 2001
+From: Alexandre Derumier <aderumier@odiso.com>
+Date: Mon, 14 May 2018 16:36:58 +0200
+Subject: [PATCH 3/4] config tuning
+
+allow ovs_... options:
+ addon_syntax_check=0
+
+allow custom addons scripts:
+ addon_scripts_support=1
+
+ multiple_vlan_aware_bridge_support=1
+
+don't shutdown tap, veth, vmbrvX, fwbr on reload
+(as they are not defined in /etc/network/interfaces)
+
+ ifreload_down_changed=1
+---
+ etc/network/ifupdown2/ifupdown2.conf | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/etc/network/ifupdown2/ifupdown2.conf b/etc/network/ifupdown2/ifupdown2.conf
+index 906fdea..aa7f120 100644
+--- a/etc/network/ifupdown2/ifupdown2.conf
++++ b/etc/network/ifupdown2/ifupdown2.conf
+@@ -29,12 +29,12 @@ disable_cli_interfacesfile=0
+ # are used. But when a mix of scripts and modules are used (which is the
+ # default case), you may get false warnings for attributes supported
+ # by scripts
+-addon_syntax_check=1
++addon_syntax_check=0
+ 
+ # Support executing of ifupdown style scripts.
+ # Note that by default python addon modules override scripts with the same
+ # name
+-addon_scripts_support=0
++addon_scripts_support=1
+ 
+ # enable python addons
+ addon_python_modules_support=1
+@@ -42,7 +42,7 @@ addon_python_modules_support=1
+ # By default ifupdown2 only supports a single vlan filtering bridge
+ # on the system. Set this flag to 1 to support multiple vlan
+ # filtering bridges
+-multiple_vlan_aware_bridge_support=0
++multiple_vlan_aware_bridge_support=1
+ 
+ # ifquery check status strings.
+ # By default `ifquery --check` prints the check and
+-- 
+2.11.0
+

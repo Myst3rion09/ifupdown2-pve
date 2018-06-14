@@ -1,0 +1,162 @@
+From 813b7bc0da9f4c9df65936d10aa9dc18d857d0a5 Mon Sep 17 00:00:00 2001
+From: Alexandre Derumier <aderumier@odiso.com>
+Date: Wed, 16 May 2018 09:58:45 +0200
+Subject: [PATCH] add vxlan-physdev support
+
+backported from master branch
+https://github.com/CumulusNetworks/ifupdown2/pull/19
+---
+ ifupdown2/addons/vxlan.py | 19 ++++++++++++++++++-
+ ifupdown2/ifupdown/netlink.py         |  8 ++++++--
+ ifupdown2/ifupdownaddons/LinkUtils.py |  5 ++++-
+ ifupdown2/nlmanager/nlmanager.py      |  4 +++-
+
+ 4 files changed, 31 insertions(+), 5 deletions(-)
+
+diff --git a/ifupdown2/addons/vxlan.py b/ifupdown2/addons/vxlan.py
+index 3148e44..2aedbfc 100644
+--- a/ifupdown2/addons/vxlan.py
++++ b/ifupdown2/addons/vxlan.py
+@@ -54,6 +54,9 @@ class vxlan(moduleBase):
+                              'validvals' : ['<ipv4>'],
+                              'example': ['vxlan-remoteip 172.16.22.127'],
+                              'multiline': True},
++                        'vxlan-physdev' :
++                            {'help' : 'vxlan physical device',
++                             'example': ['vxlan-physdev eth1']},
+                         'vxlan-learning' :
+                             {'help' : 'vxlan learning yes/no',
+                              'validvals' : ['yes', 'no', 'on', 'off'],
+@@ -123,6 +126,13 @@ class vxlan(moduleBase):
+                 vxlan._clagd_vxlan_anycast_ip = clagd_vxlan_list[0]
+ 
+             self._set_global_local_ip(ifaceobj)
++
++        # If we should use a specific underlay device for the VXLAN
++        # tunnel make sure this device is set up before the VXLAN iface.
++        physdev = ifaceobj.get_attr_value_first('vxlan-physdev')
++        if physdev:
++            return [ physdev ]
++
+         return None
+ 
+     def _set_global_local_ip(self, ifaceobj):
+@@ -184,6 +194,7 @@ class vxlan(moduleBase):
+             self.syntax_check_localip_anycastip_equal(ifname, local, anycastip)
+             # if both local-ip and anycast-ip are identical the function prints a warning
+ 
++            physdev = ifaceobj.get_attr_value_first('vxlan-physdev')
+             ageing = ifaceobj.get_attr_value_first('vxlan-ageing')
+             vxlan_port = ifaceobj.get_attr_value_first('vxlan-port')
+             purge_remotes = self._get_purge_remotes(ifaceobj)
+@@ -291,7 +302,8 @@ class vxlan(moduleBase):
+                                            learning=learning,
+                                            ageing=ageing,
+                                            group=group,
+-                                           dstport=vxlan_port)
++                                           dstport=vxlan_port,
++                                           physdev=physdev)
+                 except Exception as e_netlink:
+                     self.logger.debug('%s: vxlan netlink: %s' % (ifname, str(e_netlink)))
+                     try:
+@@ -463,6 +475,11 @@ class vxlan(moduleBase):
+         self._query_check_n_update(ifaceobj, ifaceobjcurr, 'vxlan-ageing',
+                        ageing, vxlanattrs.get('ageing'))
+ 
++        physdev = ifaceobj.get_attr_value_first('vxlan-physdev')
++        if physdev:
++            self._query_check_n_update(ifaceobj, ifaceobjcurr, 'vxlan-physdev',
++                           physdev, vxlanattrs.get('physdev'))
++
+     def _query_running(self, ifaceobjrunning):
+         vxlanattrs = self.ipcmd.get_vxlandev_attrs(ifaceobjrunning.name)
+         if not vxlanattrs:
+diff --git a/ifupdown2/ifupdown/netlink.py b/ifupdown2/ifupdown/netlink.py
+index 17672c2..516d39c 100644
+--- a/ifupdown2/ifupdown/netlink.py
++++ b/ifupdown2/ifupdown/netlink.py
+@@ -252,7 +252,7 @@ class Netlink(utilsBase):
+                             % (ifacename, vlanid, str(e)))
+
+     def link_add_vxlan(self, ifacename, vxlanid, local=None, dstport=VXLAN_UDP_PORT,
+-                       group=None, learning=True, ageing=None):
++                       group=None, learning=True, ageing=None, physdev=None):
+         cmd = 'ip link add %s type vxlan id %s dstport %s' % (ifacename,
+                                                               vxlanid,
+                                                               dstport)
+@@ -260,16 +260,20 @@ class Netlink(utilsBase):
+         cmd += ' ageing %s' % ageing if ageing else ''
+         cmd += ' remote %s' % group if group else ' noremote'
+         cmd += ' nolearning' if not learning else ''
++        cmd += ' dev %s' % physdev if physdev else ''
+         self.logger.info('%s: netlink: %s' % (ifacename, cmd))
+         if ifupdownflags.flags.DRYRUN: return
+         try:
++            if physdev:
++                physdev = self.get_iface_index (physdev)
+             return self._nlmanager_api.link_add_vxlan(ifacename,
+                                                       vxlanid,
+                                                       dstport=dstport,
+                                                       local=local,
+                                                       group=group,
+                                                       learning=learning,
+-                                                      ageing=ageing)
++                                                      ageing=ageing,
++                                                      physdev=physdev)
+         except Exception as e:
+             raise Exception('netlink: %s: cannot create vxlan %s: %s'
+                             % (ifacename, vxlanid, str(e)))
+
+diff --git a/ifupdown2/ifupdownaddons/LinkUtils.py b/ifupdown2/ifupdownaddons/LinkUtils.py
+index ae541e9..8605704 100644
+--- a/ifupdown2/ifupdownaddons/LinkUtils.py
++++ b/ifupdown2/ifupdownaddons/LinkUtils.py
+@@ -507,18 +507,21 @@ class LinkUtils(utilsBase):
+                         linkattrs['kind'] = 'vxlan'
+                         vattrs = {'vxlanid': citems[i + 2],
+                                   'svcnode': None,
++                                 'physdev': None,
+                                   'remote': [],
+                                   'ageing': citems[i + 2],
+                                   'learning': 'on'}
+                         for j in range(i + 2, len(citems)):
+                             if citems[j] == 'local':
+                                 vattrs['local'] = citems[j + 1]
+-                            elif citems[j] == 'remote':
++                            elif citems[j] == 'group':
+                                 vattrs['svcnode'] = citems[j + 1]
+                             elif citems[j] == 'ageing':
+                                 vattrs['ageing'] = citems[j + 1]
+                             elif citems[j] == 'nolearning':
+                                 vattrs['learning'] = 'off'
++                            elif citems[j] == 'dev':
++                                vattrs['physdev'] = citems[j + 1]
+                         linkattrs['linkinfo'] = vattrs
+                         break
+                     elif citems[i] == 'vrf' and citems[i + 1] == 'table':
+diff --git a/ifupdown2/nlmanager/nlmanager.py b/ifupdown2/nlmanager/nlmanager.py
+index e4a5892..14f7066 100644
+--- a/ifupdown2/nlmanager/nlmanager.py
++++ b/ifupdown2/nlmanager/nlmanager.py
+@@ -969,7 +969,7 @@ class NetlinkManager(object):
+         return self.tx_nlpacket_get_response(nbr)
+
+     def link_add_vxlan(self, ifname, vxlanid, dstport=None, local=None,
+-                       group=None, learning=True, ageing=None):
++                       group=None, learning=True, ageing=None, physdev=None):
+
+         debug = RTM_NEWLINK in self.debug
+
+@@ -980,6 +980,8 @@ class NetlinkManager(object):
+             info_data[Link.IFLA_VXLAN_LOCAL] = local
+         if group:
+             info_data[Link.IFLA_VXLAN_GROUP] = group
++        if physdev:
++            info_data[Link.IFLA_VXLAN_LINK] = int (physdev)
+
+         info_data[Link.IFLA_VXLAN_LEARNING] = int(learning)
+
+
+-- 
+2.11.0
+
