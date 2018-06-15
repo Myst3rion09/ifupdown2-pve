@@ -1,6 +1,6 @@
 PACKAGE=ifupdown2
-VER=1.1
-PKGREL=2.0
+VER=2.0.0
+PKGREL=1~pvetest1
 
 SRCDIR=ifupdown2
 BUILDDIR=${SRCDIR}.tmp
@@ -23,8 +23,9 @@ deb: ${DEB}
 ${DEB}: | submodule
 	rm -f *.deb
 	rm -rf $(BUILDDIR)
-	cp -rpa ${SRCDIR} ${BUILDDIR}
-	cp -a debian ${BUILDDIR}
+	mkdir $(BUILDDIR)
+	cp -a $(SRCDIR)/* $(BUILDDIR)/
+	cp -R debian/* $(BUILDDIR)/debian/
 	cd ${BUILDDIR}; dpkg-buildpackage -rfakeroot -b -uc -us
 
 .PHONY: upload
