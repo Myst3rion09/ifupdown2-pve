@@ -1,7 +1,7 @@
-From 9c3dcc88df68adc1acda3faa2118917b038574c5 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
 Date: Mon, 14 May 2018 16:27:22 +0200
-Subject: [PATCH 2/4] addons scripts : fix ENV for interfaces options
+Subject: [PATCH] addons scripts : fix ENV for interfaces options
 
 This is a bug currently, where env vars with interfaces options
 were not reset between interfaces
@@ -12,10 +12,10 @@ https://github.com/CumulusNetworks/ifupdown2/issues/49
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/ifupdown2/ifupdown/ifupdownmain.py b/ifupdown2/ifupdown/ifupdownmain.py
-index 3c72429..e818880 100644
+index 2daf49f..4931f73 100644
 --- a/ifupdown2/ifupdown/ifupdownmain.py
 +++ b/ifupdown2/ifupdown/ifupdownmain.py
-@@ -1556,7 +1556,7 @@ class ifupdownMain(ifupdownBase):
+@@ -1552,7 +1552,7 @@ class ifupdownMain(ifupdownBase):
          cenv = None
          iface_env = ifaceobj.get_env()
          if iface_env:

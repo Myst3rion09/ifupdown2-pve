@@ -1,7 +1,7 @@
-From 849e8213baa8483604a0de6a59695fd3dd98b248 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
 Date: Mon, 14 May 2018 16:36:58 +0200
-Subject: [PATCH 3/4] config tuning
+Subject: [PATCH] config tuning
 
 allow ovs_... options:
  addon_syntax_check=0
@@ -16,11 +16,11 @@ don't shutdown tap, veth, vmbrvX, fwbr on reload
 
  ifreload_down_changed=1
 ---
- etc/network/ifupdown2/ifupdown2.conf | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ etc/network/ifupdown2/ifupdown2.conf | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/etc/network/ifupdown2/ifupdown2.conf b/etc/network/ifupdown2/ifupdown2.conf
-index 906fdea..aa7f120 100644
+index 906fdea..3acc203 100644
 --- a/etc/network/ifupdown2/ifupdown2.conf
 +++ b/etc/network/ifupdown2/ifupdown2.conf
 @@ -29,12 +29,12 @@ disable_cli_interfacesfile=0
