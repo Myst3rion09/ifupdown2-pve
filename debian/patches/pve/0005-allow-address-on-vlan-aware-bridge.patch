@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Alexandre Derumier <aderumier@odiso.com>
+Date: Sat, 16 Jun 2018 14:59:46 +0200
+Subject: [PATCH] allow address on vlan aware bridge
+
+This will allow to setup ip address on vlan aware bridge.
+Note that in this case, the ip will use the default PVID.
+---
+ ifupdown2/ifupdown/utils.py | 8 --------
+ 1 file changed, 8 deletions(-)
+
+diff --git a/ifupdown2/ifupdown/utils.py b/ifupdown2/ifupdown/utils.py
+index f7a89a7..cee3425 100644
+--- a/ifupdown2/ifupdown/utils.py
++++ b/ifupdown2/ifupdown/utils.py
+@@ -346,14 +346,6 @@ class utils():
+             else:
+                 cls.logger.info(msg)
+             return False
+-        elif (ifaceobj.link_kind & ifaceLinkKind.BRIDGE
+-                and ifaceobj.link_privflags & ifaceLinkPrivFlags.BRIDGE_VLAN_AWARE):
+-            msg = '%s bridge vlan aware interfaces'
+-            if syntax_check:
+-                cls.logger.warning(msg)
+-            else:
+-                cls.logger.info(msg)
+-            return False
+         return True
+ 
+     @classmethod
+-- 
+2.11.0
+

@@ -5,3 +5,4 @@ pve/0001-config-tuning.patch
 pve/0002-manual-interfaces-set-link-up.patch
 pve/0003-don-t-remove-tap-veth-fwpr-interfaces-from-bridge-on.patch
 pve/0004-add-dummy-mtu-bridgevlanport-modules.patch
+pve/0005-allow-address-on-vlan-aware-bridge.patch
