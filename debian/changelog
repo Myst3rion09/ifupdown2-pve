@@ -1,3 +1,9 @@
+ifupdown2 (2.0.0-1~pvetest2) unstable; urgency=medium
+
+  * readd patch for vxlan/anycast support
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 18 Jun 2018 09:56:51 +0200
+
 ifupdown2 (2.0.0-1~pvetest1) unstable; urgency=medium
 
   * Initial 2.0.0 package
