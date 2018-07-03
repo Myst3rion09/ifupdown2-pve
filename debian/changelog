@@ -1,17 +1,23 @@
-ifupdown2 (2.0.0-1~pvetest3) unstable; urgency=medium
+ifupdown2 (1.2.0-1+pvetest1) unstable; urgency=medium
+
+  * Update to 1.2.0 tag with some fixups from master-next
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 03 Jul 2018 10:47:42 +0200
+
+ifupdown2 (1.2.0-1~pvetest3) unstable; urgency=medium
 
   * allow specifying addresses on vlan aware bridges
 
  -- Proxmox Support Team <support@proxmox.com>  Mon, 18 Jun 2018 10:05:00 +0200
 
-ifupdown2 (2.0.0-1~pvetest2) unstable; urgency=medium
+ifupdown2 (1.2.0-1~pvetest2) unstable; urgency=medium
 
   * readd patch for vxlan/anycast support
 
  -- Proxmox Support Team <support@proxmox.com>  Mon, 18 Jun 2018 09:56:51 +0200
 
-ifupdown2 (2.0.0-1~pvetest1) unstable; urgency=medium
+ifupdown2 (1.2.0-1~pvetest1) unstable; urgency=medium
 
-  * Initial 2.0.0 package
+  * Initial 1.2.0 package
 
  -- Proxmox Support Team <support@proxmox.com>  Fri, 15 Jun 2018 09:14:59 +0200
