@@ -10,10 +10,10 @@ as proxmox don't defined them in /etc/network/interfaces
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/ifupdown2/addons/bridge.py b/ifupdown2/addons/bridge.py
-index 02cbebf..9140735 100644
+index 1b4dcdd..3f97898 100644
 --- a/ifupdown2/addons/bridge.py
 +++ b/ifupdown2/addons/bridge.py
-@@ -954,7 +954,7 @@ class bridge(moduleBase):
+@@ -958,7 +958,7 @@ class bridge(moduleBase):
              runningbridgeports = self.brctlcmd.get_bridge_ports(ifaceobj.name)
              if runningbridgeports:
                  for bport in runningbridgeports:

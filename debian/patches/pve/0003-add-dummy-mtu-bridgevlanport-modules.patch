@@ -17,10 +17,10 @@ we can override them with ifupdown2 addon scripts, doing nothing.
  create mode 100644 ifupdown2/addons/mtu.py
 
 diff --git a/etc/network/ifupdown2/addons.conf b/etc/network/ifupdown2/addons.conf
-index c0d1ce9..16b57ec 100644
+index 4afbedf..2245cce 100644
 --- a/etc/network/ifupdown2/addons.conf
 +++ b/etc/network/ifupdown2/addons.conf
-@@ -13,6 +13,8 @@ up,dhcp
+@@ -15,6 +15,8 @@ up,dhcp
  up,address
  up,addressvirtual
  up,usercmds
