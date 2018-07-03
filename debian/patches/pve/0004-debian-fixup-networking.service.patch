@@ -1,0 +1,66 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Tue, 3 Jul 2018 11:00:57 +0200
+Subject: [PATCH] debian: fixup networking.service
+
+Add missing ordering:
+  After=network-pre.target
+    See systemd.special(7)'s description of this target
+  After=systemd-sysctl.service
+    ifupdown does the same - we want net.*.conf.default.*
+    sysctl keys to apply to newly created interfaces
+  After=systemd-modules-load.service
+    ifupdown does the same, though this should be mostly
+    optional as modules should be autoloaded anyway
+  Before=network.target
+    This is required to prevent services which require
+    network to be started too early and listen on wrong
+    addresses (iow. only on loopback or ipv4-only).
+  Before=network-online.target
+    See systemd.special(7)'s description. We are the
+    provider of this target.
+  Before=shutdown.target
+    ifupdown does it this way, it also makes more sense
+    given the Conflict entry, compared to the previous
+    WantedBy entry in [Install]
+
+Changed install section:
+  WantedBy=multi-user.target
+    I wasn't sure about this. ifupdown does this.
+    basic.target didn't seem useful since we actually want:
+  WantedBy=network-online.target
+    We provide this, so we should be installed into it.
+  removed WantedBy=network.target
+    We strictly want to be ordered before this and instead
+    are required by multi-user.target already.
+  removed WantedBy=shutdown.target
+    I didn't see the point.
+
+Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+---
+ debian/ifupdown2.networking.service | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/debian/ifupdown2.networking.service b/debian/ifupdown2.networking.service
+index 06e1545..b5c45f9 100644
+--- a/debian/ifupdown2.networking.service
++++ b/debian/ifupdown2.networking.service
+@@ -2,7 +2,8 @@
+ Description=ifupdown2 networking initialization
+ Documentation=man:interfaces(5) man:ifup(8) man:ifdown(8)
+ DefaultDependencies=no
+-Before=shutdown.target
++After=local-fs.target network-pre.target systemd-sysctl.service systemd-modules-load.service
++Before=network.target shutdown.target network-online.target
+ Conflicts=shutdown.target
+ 
+ [Service]
+@@ -15,4 +16,4 @@ ExecStop=/usr/share/ifupdown2/sbin/start-networking stop
+ ExecReload=/usr/share/ifupdown2/sbin/start-networking reload
+ 
+ [Install]
+-WantedBy=basic.target network.target shutdown.target
++WantedBy=multi-user.target network-online.target
+-- 
+2.11.0
+

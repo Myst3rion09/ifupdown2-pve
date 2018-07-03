@@ -1,3 +1,4 @@
 pve/0001-config-tuning.patch
 pve/0002-don-t-remove-tap-veth-fwpr-interfaces-from-bridge-on.patch
 pve/0003-add-dummy-mtu-bridgevlanport-modules.patch
+pve/0004-debian-fixup-networking.service.patch
