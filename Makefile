@@ -5,11 +5,9 @@ PKGREL=1+pvetest1
 SRCDIR=ifupdown2
 BUILDDIR=${SRCDIR}.tmp
 
-ARCH:=$(shell dpkg-architecture -qDEB_BUILD_ARCH)
-
 GITVERSION:=$(shell git rev-parse HEAD)
 
-DEB=${PACKAGE}_${VER}-${PKGREL}_${ARCH}.deb
+DEB=${PACKAGE}_${VER}-${PKGREL}_all.deb
 
 all: ${DEB}
 	@echo ${DEB}
