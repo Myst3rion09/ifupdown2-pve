@@ -1,43 +1,34 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From 8b2e7b50a36dfada8d1e04412326c3d8e4ad9266 Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
-Date: Mon, 14 May 2018 16:36:58 +0200
+Date: Mon, 31 Dec 2018 10:49:48 +0100
 Subject: [PATCH] config tuning
 
 allow ovs_... options:
  addon_syntax_check=0
 
-allow custom addons scripts:
- addon_scripts_support=1
-
- multiple_vlan_aware_bridge_support=1
+multiple_vlan_aware_bridge_support=1
 
 don't shutdown tap, veth, vmbrvX, fwbr on reload
 (as they are not defined in /etc/network/interfaces)
 
- ifreload_down_changed=1
+ifreload_down_changed=1
 ---
  etc/network/ifupdown2/ifupdown2.conf | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/etc/network/ifupdown2/ifupdown2.conf b/etc/network/ifupdown2/ifupdown2.conf
-index 906fdea..3acc203 100644
+index e1035d6..e9264b5 100644
 --- a/etc/network/ifupdown2/ifupdown2.conf
 +++ b/etc/network/ifupdown2/ifupdown2.conf
-@@ -29,12 +29,12 @@ disable_cli_interfacesfile=0
+@@ -29,7 +29,7 @@ disable_cli_interfacesfile=0
  # are used. But when a mix of scripts and modules are used (which is the
  # default case), you may get false warnings for attributes supported
  # by scripts
--addon_syntax_check=1
-+addon_syntax_check=0
+-addon_syntax_check=0
++addon_syntax_check=1
  
  # Support executing of ifupdown style scripts.
  # Note that by default python addon modules override scripts with the same
- # name
--addon_scripts_support=0
-+addon_scripts_support=1
- 
- # enable python addons
- addon_python_modules_support=1
 @@ -42,7 +42,7 @@ addon_python_modules_support=1
  # By default ifupdown2 only supports a single vlan filtering bridge
  # on the system. Set this flag to 1 to support multiple vlan
@@ -47,6 +38,15 @@ index 906fdea..3acc203 100644
  
  # ifquery check status strings.
  # By default `ifquery --check` prints the check and
+@@ -67,7 +67,7 @@ delay_admin_state_change=0
+ # ifreload by default downs: 'all interfaces for which config changed' +
+ # 'interfaces that were deleted'. With the below variable set to '0'
+ # ifreload will only down 'interfaces that were deleted'
+-ifreload_down_changed=0
++ifreload_down_changed=1
+ 
+ # squash all addr config when you process the first interface
+ addr_config_squash=0
 -- 
 2.11.0
 
