@@ -1,3 +1,9 @@
+ifupdown2 (1.2.2-1+pvetest1) unstable; urgency=medium
+
+  * Update to 1.2.2
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 31 Dec 2018 09:00:00 +0200
+
 ifupdown2 (1.2.0-1+pvetest1) unstable; urgency=medium
 
   * Update to 1.2.0 tag with some fixups from master-next

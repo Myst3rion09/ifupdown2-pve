@@ -1,5 +1,5 @@
 PACKAGE=ifupdown2
-VER=1.2.0
+VER=1.2.2
 PKGREL=1+pvetest1
 
 SRCDIR=ifupdown2
