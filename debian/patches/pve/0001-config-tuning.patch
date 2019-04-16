@@ -38,15 +38,6 @@ index e1035d6..e9264b5 100644
  
  # ifquery check status strings.
  # By default `ifquery --check` prints the check and
-@@ -67,7 +67,7 @@ delay_admin_state_change=0
- # ifreload by default downs: 'all interfaces for which config changed' +
- # 'interfaces that were deleted'. With the below variable set to '0'
- # ifreload will only down 'interfaces that were deleted'
--ifreload_down_changed=0
-+ifreload_down_changed=1
- 
- # squash all addr config when you process the first interface
- addr_config_squash=0
 -- 
 2.11.0
 
