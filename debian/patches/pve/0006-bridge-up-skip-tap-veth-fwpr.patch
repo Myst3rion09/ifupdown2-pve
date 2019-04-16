@@ -1,0 +1,30 @@
+From 0afe358bb8fb326161fd7cf16f9686eac0c84ca1 Mon Sep 17 00:00:00 2001
+From: Alexandre Derumier <aderumier@odiso.com>
+Date: Wed, 17 Apr 2019 01:02:51 +0200
+Subject: [PATCH] bridge up : skip tap|veth|fwpr
+
+to avoid this kind of error:
+
+info: vmbr5001: applying bridge port configuration: ['tap111i0']
+info: vmbr5001: applying bridge configuration specific to ports
+error: 'NoneType' object has no attribute '__getitem__'
+---
+ ifupdown2/addons/bridge.py | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/ifupdown2/addons/bridge.py b/ifupdown2/addons/bridge.py
+index e70fc07..fbbe8e4 100644
+--- a/ifupdown2/addons/bridge.py
++++ b/ifupdown2/addons/bridge.py
+@@ -2050,6 +2050,8 @@ class bridge(moduleBase):
+         finally:
+             if ifaceobj.link_type != ifaceLinkType.LINK_NA:
+                 for p in running_ports:
++                    if re.match('^(tap|veth|fwpr)',p):
++                        continue
+                     if (ifaceobj_getfunc(p)[0].link_privflags &
+                             ifaceLinkPrivFlags.KEEP_LINK_DOWN):
+                         netlink.link_set_updown(p, "down")
+-- 
+2.11.0
+
