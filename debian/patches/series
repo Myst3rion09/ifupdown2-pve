@@ -3,4 +3,3 @@ pve/0002-don-t-remove-tap-veth-fwpr-interfaces-from-bridge-on.patch
 pve/0003-add-dummy-mtu-bridgevlanport-modules.patch
 pve/0004-debian-fixup-networking.service.patch
 pve/0005-allow-vlan-subinterface-in-a-vlan-aware-bridge.patch
-extra/0001-addons-bridge-fix-NoneType-object-has-no-attribute-_.patch
