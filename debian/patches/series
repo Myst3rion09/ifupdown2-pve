@@ -4,4 +4,5 @@ pve/0003-add-dummy-mtu-bridgevlanport-modules.patch
 pve/0004-debian-fixup-networking.service.patch
 pve/0005-allow-vlan-subinterface-in-a-vlan-aware-bridge.patch
 pve/0006-don-t-remove-bridge-is-tap-veth-are-still-plugged.patch
+pve/0007-add-uplink-id-option.patch
 extra/0001-ifreload-down-up-vxlan-interfaces-when-ifreload_down.patch
