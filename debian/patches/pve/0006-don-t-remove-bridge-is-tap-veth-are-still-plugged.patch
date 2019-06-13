@@ -1,0 +1,34 @@
+From d4dd66be9bf4495c0dbf98d878d9121d7ed12b2f Mon Sep 17 00:00:00 2001
+From: Alexandre Derumier <aderumier@odiso.com>
+Date: Thu, 13 Jun 2019 14:34:59 +0200
+Subject: [PATCH] don't remove bridge is tap|veth are still plugged
+
+Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
+---
+ ifupdown2/ifupdown/ifupdownmain.py | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/ifupdown2/ifupdown/ifupdownmain.py b/ifupdown2/ifupdown/ifupdownmain.py
+index f520994..9f7641a 100644
+--- a/ifupdown2/ifupdown/ifupdownmain.py
++++ b/ifupdown2/ifupdown/ifupdownmain.py
+@@ -2067,7 +2067,15 @@ class ifupdownMain(ifupdownBase):
+                 # append it to the down list
+                 newifaceobjlist = new_ifaceobjdict.get(ifname)
+                 if not newifaceobjlist:
+-                    ifacedownlist.append(ifname)
++                    removebridge = 0
++                    if (ifaceLinkKind.to_str(lastifaceobjlist[0].link_kind) == 'bridge'):
++                         runningbridgeports = os.listdir('/sys/class/net/%s/brif/' % ifname)
++                         for bport in runningbridgeports:
++                             if re.match('^(tap|veth|fwpr)',bport):
++                                 self.logger.warn("cant remove bridge %s, port %s is present " %(ifname,bport))
++                                 removebridge = 1
++                    if removebridge != 1:
++                        ifacedownlist.append(ifname)
+                     continue
+                 # If ifaceobj was present in the old interfaces file,
+                 # and does not have a config in the new interfaces file
+-- 
+2.20.1
+
