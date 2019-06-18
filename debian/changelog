@@ -1,3 +1,12 @@
+ifupdown2 (1.2.5-2+pve1) pve; urgency=medium
+
+  * don't remove bridge if tap|veth|fw are connected
+  * ifup/ifdown vxlan interface on reload
+  * update to current upstream master
+  * add uplink-id option
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 18 Jun 2019 10:22:34 +0200
+
 ifupdown2 (1.2.5-1+pvetest1) unstable; urgency=medium
 
   * Update to 1.2.5-1
