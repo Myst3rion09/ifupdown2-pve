@@ -1,6 +1,6 @@
 PACKAGE=ifupdown2
-VER=1.2.5
-PKGREL=2+pve1
+VER=1.2.8
+PKGREL=1+pve1
 
 SRCDIR=ifupdown2
 BUILDDIR=${SRCDIR}.tmp
