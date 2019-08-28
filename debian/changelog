@@ -1,3 +1,10 @@
+ifupdown2 (1.2.8-1+pve2) pve; urgency=medium
+
+  * restore the behavior to not remove (tap|veth|fwpr) interfaces from bridges
+    on ifup
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 28 Aug 2019 16:43:11 +0200
+
 ifupdown2 (1.2.8-1+pve1) pve; urgency=medium
 
   * update to upstream 1.2.8-1 release
