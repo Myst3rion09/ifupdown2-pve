@@ -3,7 +3,7 @@ include /usr/share/dpkg/pkg-info.mk
 PACKAGE=ifupdown2
 
 SRCDIR=ifupdown2
-BUILDDIR=${SRCDIR}.tmp
+BUILDDIR=${SRCDIR}-${DEB_VERSION_UPSTREAM}
 
 GITVERSION:=$(shell git rev-parse HEAD)
 
@@ -16,14 +16,16 @@ all: ${DEB}
 submodule:
 	test -f "${SRCDIR}/debian/changelog" || git submodule update --init
 
-.PHONY: deb
-deb: ${DEB}
-${DEB}: | submodule
-	rm -f *.deb
+buildir: ${BUILDDIR}
+${BUILDDIR}: submodule
 	rm -rf $(BUILDDIR)
 	mkdir $(BUILDDIR)
 	cp -a $(SRCDIR)/* $(BUILDDIR)/
 	cp -R debian/* $(BUILDDIR)/debian/
+
+.PHONY: deb
+deb: ${DEB}
+${DEB}: ${BUILDDIR}
 	cd ${BUILDDIR}; dpkg-buildpackage -rfakeroot -b -uc -us
 
 .PHONY: upload
@@ -35,7 +37,7 @@ distclean: clean
 
 .PHONY: clean
 clean:
-	rm -rf ${BUILDDIR} *.deb *.changes *.dsc *.buildinfo
+	rm -rf ${PACKAGE}-*/ *.deb *.changes *.dsc *.buildinfo
 
 .PHONY: dinstall
 dinstall: deb
