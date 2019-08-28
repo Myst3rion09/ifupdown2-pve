@@ -1,13 +1,13 @@
+include /usr/share/dpkg/pkg-info.mk
+
 PACKAGE=ifupdown2
-VER=1.2.8
-PKGREL=1+pve1
 
 SRCDIR=ifupdown2
 BUILDDIR=${SRCDIR}.tmp
 
 GITVERSION:=$(shell git rev-parse HEAD)
 
-DEB=${PACKAGE}_${VER}-${PKGREL}_all.deb
+DEB=${PACKAGE}_${DEB_VERSION_UPSTREAM_REVISION}_all.deb
 
 all: ${DEB}
 	@echo ${DEB}
