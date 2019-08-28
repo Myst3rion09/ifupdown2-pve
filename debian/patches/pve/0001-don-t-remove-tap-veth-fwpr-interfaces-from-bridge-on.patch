@@ -1,4 +1,4 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From f01a763647fa21b6192a94f184dd7d9d772b4e9e Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
 Date: Wed, 16 May 2018 02:11:45 +0200
 Subject: [PATCH] don't remove (tap|veth|fwpr) interfaces from bridge on ifup
@@ -7,12 +7,13 @@ Subject: [PATCH] don't remove (tap|veth|fwpr) interfaces from bridge on ifup
 as proxmox don't defined them in /etc/network/interfaces
 
 Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
+Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
 ---
- ifupdown2/addons/bridge.py | 1 +
- 1 file changed, 1 insertion(+)
+ ifupdown2/addons/bridge.py | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/ifupdown2/addons/bridge.py b/ifupdown2/addons/bridge.py
-index 3e5fd78..f40e2e7 100644
+index 3e5fd78..bd597d7 100644
 --- a/ifupdown2/addons/bridge.py
 +++ b/ifupdown2/addons/bridge.py
 @@ -79,6 +79,7 @@ class bridge(moduleBase):
@@ -23,3 +24,16 @@ index 3e5fd78..f40e2e7 100644
                           'example' : [ 'bridge-ports-condone-regex ^[a-zA-Z0-9]+_v[0-9]{1,4}$']},
                     'bridge-stp' :
                          {'help': 'bridge-stp yes/no',
+@@ -912,6 +913,9 @@ class bridge(moduleBase):
+         # up a compiled regex to be used in a match later. This way we try to avoid
+         # a race condition where an (possibly VM) interface is created after this
+         # function has been called but before the bridgeports are validated.
++        if not bridge_port_condone_regex:
++            bridge_port_condone_regex = self.get_attr_default_value('bridge-ports-condone-regex')
++
+         if bridge_port_condone_regex:
+             if get_string:
+                 return bridge_port_condone_regex
+-- 
+2.20.1
+
