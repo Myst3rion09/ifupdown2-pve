@@ -8,6 +8,8 @@ we can override them with ifupdown2 addon scripts, doing nothing.
 
 (ifupdown2 don't launch an ifdown script, if an ifupdown2 addon script
  exist with same name)
+
+Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
 ---
  etc/network/ifupdown2/addons.conf  |  2 ++
  ifupdown2/addons/bridgevlanport.py | 17 +++++++++++++++++
@@ -17,10 +19,10 @@ we can override them with ifupdown2 addon scripts, doing nothing.
  create mode 100644 ifupdown2/addons/mtu.py
 
 diff --git a/etc/network/ifupdown2/addons.conf b/etc/network/ifupdown2/addons.conf
-index 4afbedf..2245cce 100644
+index dd3d223..73ef72d 100644
 --- a/etc/network/ifupdown2/addons.conf
 +++ b/etc/network/ifupdown2/addons.conf
-@@ -15,6 +15,8 @@ up,dhcp
+@@ -17,6 +17,8 @@ up,dhcp
  up,address
  up,addressvirtual
  up,usercmds
@@ -75,6 +77,3 @@ index 0000000..efdf569
 +class mtu(moduleBase):
 +
 +    _modinfo = {'mhelp' : 'dummy package to override proxmox script'}
--- 
-2.11.0
-

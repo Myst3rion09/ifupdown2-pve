@@ -1,4 +1,4 @@
-From 0eb16c0cae122a69a01acc228067f84bfbb0b6dc Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
 Date: Wed, 5 Jun 2019 14:47:05 +0200
 Subject: [PATCH] ifreload: down/up vxlan interfaces when
@@ -11,15 +11,16 @@ so when ifreload_down_changed=0, ifreload can't update vxlan.
 
 fix: https://github.com/CumulusNetworks/ifupdown2/issues/50
 Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
+Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
 ---
  ifupdown2/ifupdown/ifupdownmain.py | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/ifupdown2/ifupdown/ifupdownmain.py b/ifupdown2/ifupdown/ifupdownmain.py
-index f520994..f1fd0d7 100644
+index 9f7641a..8bb9f47 100644
 --- a/ifupdown2/ifupdown/ifupdownmain.py
 +++ b/ifupdown2/ifupdown/ifupdownmain.py
-@@ -2099,7 +2099,7 @@ class ifupdownMain(ifupdownBase):
+@@ -2107,7 +2107,7 @@ class ifupdownMain(ifupdownBase):
                                       % (newifaceobjlist[objidx].name,
                                          ifaceLinkKind.to_str(lastifaceobjlist[0].link_kind)))
                      ifacedownlist.append(newifaceobjlist[objidx].name)
@@ -28,6 +29,3 @@ index f520994..f1fd0d7 100644
                      continue
                  if len(newifaceobjlist) != len(lastifaceobjlist):
                      ifacedownlist.append(ifname)
--- 
-2.11.0
-

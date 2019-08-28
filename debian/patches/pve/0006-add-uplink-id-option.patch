@@ -1,9 +1,10 @@
-From af2f2c44bea0a3a89f338d8e7cd5a8f61334a491 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
 Date: Thu, 13 Jun 2019 14:40:17 +0200
 Subject: [PATCH] add uplink-id option
 
 Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
+Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
 ---
  ifupdown2/addons/address.py | 5 +++++
  1 file changed, 5 insertions(+)
@@ -24,6 +25,3 @@ index f576dc0..ce56ae6 100644
                      'ipv6-addrgen': {
                          'help': 'enable disable ipv6 link addrgenmode',
                          'validvals': ['on', 'off'],
--- 
-2.20.1
-

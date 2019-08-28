@@ -37,6 +37,7 @@ Changed install section:
     I didn't see the point.
 
 Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
 ---
  debian/ifupdown2.networking.service | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
@@ -61,6 +62,3 @@ index 06e1545..b5c45f9 100644
  [Install]
 -WantedBy=basic.target network.target shutdown.target
 +WantedBy=multi-user.target network-online.target
--- 
-2.11.0
-

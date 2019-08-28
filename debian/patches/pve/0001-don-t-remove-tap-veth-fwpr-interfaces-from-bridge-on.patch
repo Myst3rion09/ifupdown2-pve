@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Alexandre Derumier <aderumier@odiso.com>
+Date: Wed, 16 May 2018 02:11:45 +0200
+Subject: [PATCH] don't remove (tap|veth|fwpr) interfaces from bridge on ifup
+ bridge
+
+as proxmox don't defined them in /etc/network/interfaces
+
+Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
+---
+ ifupdown2/addons/bridge.py | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/ifupdown2/addons/bridge.py b/ifupdown2/addons/bridge.py
+index 3e5fd78..f40e2e7 100644
+--- a/ifupdown2/addons/bridge.py
++++ b/ifupdown2/addons/bridge.py
+@@ -79,6 +79,7 @@ class bridge(moduleBase):
+                    'bridge-ports-condone-regex' :
+                         {'help' : 'bridge ports to ignore/condone when reloading config / removing interfaces',
+                          'required' : False,
++                         'default' : '^(tap|veth|fwpr)',
+                          'example' : [ 'bridge-ports-condone-regex ^[a-zA-Z0-9]+_v[0-9]{1,4}$']},
+                    'bridge-stp' :
+                         {'help': 'bridge-stp yes/no',
