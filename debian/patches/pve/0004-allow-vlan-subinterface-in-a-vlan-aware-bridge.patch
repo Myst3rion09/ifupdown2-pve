@@ -29,7 +29,7 @@ Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
  1 file changed, 5 deletions(-)
 
 diff --git a/ifupdown2/addons/bridge.py b/ifupdown2/addons/bridge.py
-index f40e2e7..ebe2f7b 100644
+index bd597d7..16862b7 100644
 --- a/ifupdown2/addons/bridge.py
 +++ b/ifupdown2/addons/bridge.py
 @@ -790,11 +790,6 @@ class bridge(moduleBase):
