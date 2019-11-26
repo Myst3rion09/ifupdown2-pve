@@ -1,3 +1,11 @@
+ifupdown2 (1.2.8-1+pve4) pve; urgency=medium
+
+  * add arp-accept option required for bgp-evpn
+
+  * config: keep addon_syntax_check off to allow openvswitch syntax
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 26 Nov 2019 14:29:11 +0100
+
 ifupdown2 (1.2.8-1+pve3) pve; urgency=medium
 
   * re-add config tuning patch to allow multiple VLAN aware bridges and
