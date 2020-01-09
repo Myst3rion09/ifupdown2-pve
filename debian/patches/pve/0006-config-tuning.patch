@@ -1,7 +1,7 @@
-From 0863f43ed0621cf9cff0955c738d5e795daf76f5 Mon Sep 17 00:00:00 2001
+From bae3a66ddfad4c0fcd86deeeac10b93b587ae199 Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
 Date: Mon, 31 Dec 2018 10:49:48 +0100
-Subject: [PATCH] config tuning
+Subject: [PATCH 7/7] config tuning
 
 multiple_vlan_aware_bridge_support=1
 
@@ -12,10 +12,10 @@ Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/etc/network/ifupdown2/ifupdown2.conf b/etc/network/ifupdown2/ifupdown2.conf
-index e05c35f..47898b2 100644
+index ecdd94f..57ba598 100644
 --- a/etc/network/ifupdown2/ifupdown2.conf
 +++ b/etc/network/ifupdown2/ifupdown2.conf
-@@ -42,7 +42,7 @@ addon_python_modules_support=1
+@@ -45,7 +45,7 @@ addon_python_modules_support=1
  # By default ifupdown2 only supports a single vlan filtering bridge
  # on the system. Set this flag to 1 to support multiple vlan
  # filtering bridges

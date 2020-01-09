@@ -1,7 +1,7 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From 3daa281c155da9da166627e35114283665f01669 Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
 Date: Thu, 13 Jun 2019 14:34:59 +0200
-Subject: [PATCH] don't remove bridge is tap|veth are still plugged
+Subject: [PATCH 5/7] don't remove bridge is tap|veth are still plugged
 
 Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
 Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
@@ -10,10 +10,10 @@ Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
  1 file changed, 9 insertions(+), 1 deletion(-)
 
 diff --git a/ifupdown2/ifupdown/ifupdownmain.py b/ifupdown2/ifupdown/ifupdownmain.py
-index f520994..9f7641a 100644
+index 01163e2..b4e1864 100644
 --- a/ifupdown2/ifupdown/ifupdownmain.py
 +++ b/ifupdown2/ifupdown/ifupdownmain.py
-@@ -2067,7 +2067,15 @@ class ifupdownMain(ifupdownBase):
+@@ -2191,7 +2191,15 @@ class ifupdownMain:
                  # append it to the down list
                  newifaceobjlist = new_ifaceobjdict.get(ifname)
                  if not newifaceobjlist:
@@ -30,3 +30,6 @@ index f520994..9f7641a 100644
                      continue
                  # If ifaceobj was present in the old interfaces file,
                  # and does not have a config in the new interfaces file
+-- 
+2.20.1
+

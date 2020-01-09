@@ -1,7 +1,7 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From 8187e6e4a8cea198d86c4df8117335b7b93047d0 Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
 Date: Mon, 1 Apr 2019 09:17:11 +0200
-Subject: [PATCH] allow vlan subinterface in a vlan-aware bridge
+Subject: [PATCH 4/7] allow vlan subinterface in a vlan-aware bridge
 
 for stacked/qinq vlan, it's perfectly fine to have a vlan-aware bridge with a tagged interface port
 
@@ -29,10 +29,10 @@ Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
  1 file changed, 5 deletions(-)
 
 diff --git a/ifupdown2/addons/bridge.py b/ifupdown2/addons/bridge.py
-index bd597d7..16862b7 100644
+index 35944ac..f353d6c 100644
 --- a/ifupdown2/addons/bridge.py
 +++ b/ifupdown2/addons/bridge.py
-@@ -790,11 +790,6 @@ class bridge(moduleBase):
+@@ -890,11 +890,6 @@ class bridge(Addon, moduleBase):
              result = True
              for port_name in ports:
                  port_obj_l = ifaceobj_getfunc(port_name)
@@ -44,3 +44,6 @@ index bd597d7..16862b7 100644
                  if (port_obj_l and
                      port_obj_l[0].get_attr_value('bridge-arp-nd-suppress') and
                      self.arp_nd_suppress_only_on_vxlan and
+-- 
+2.20.1
+
