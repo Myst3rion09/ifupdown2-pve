@@ -1,8 +1,8 @@
-ifupdown2 (2.0.1-1+pve1) pve; urgency=medium
+ifupdown2 (2.0.1-1+pve2) pve; urgency=medium
 
   * Update to 2.0.1-1
 
- -- Proxmox Support Team <support@proxmox.com>  Wed, 08 Jan 2020 11:14:25 +0100
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 13 Jan 2020 09:14:22 +0100
 
 ifupdown2 (1.2.8-1+pve4) pve; urgency=medium
 
