@@ -1,0 +1,44 @@
+From 8e9960454d58f648547fcb086a8b4352a4aa4faa Mon Sep 17 00:00:00 2001
+From: Julien Fortin <julien@cumulusnetworks.com>
+Date: Tue, 31 Dec 2019 20:25:44 +0100
+Subject: [PATCH] argv: move --nldebug option to common_argparse to avoid
+ exception in ifreload
+
+Signed-off-by: Julien Fortin <julien@cumulusnetworks.com>
+Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
+---
+ ifupdown2/ifupdown/argv.py | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/ifupdown2/ifupdown/argv.py b/ifupdown2/ifupdown/argv.py
+index e560b40..a96a390 100644
+--- a/ifupdown2/ifupdown/argv.py
++++ b/ifupdown2/ifupdown/argv.py
+@@ -148,13 +148,6 @@ class Parse:
+                                help='type of interface entry (iface or vlan). '
+                                     'This option can be used in case of ambiguity between '
+                                     'a vlan interface and an iface interface of the same name')
+-        argparser.add_argument(
+-            "--nldebug",
+-            dest="nldebug",
+-            action="store_true",
+-            default=False,
+-            help="print netlink debug messages"
+-        )
+ 
+     def update_ifupdown_argparser(self, argparser):
+         """ common arg parser for ifup and ifdown """
+@@ -248,3 +241,10 @@ class Parse:
+         ''' general parsing rules '''
+ 
+         argparser.add_argument('-V', '--version', action=VersionAction, nargs=0)
++        argparser.add_argument(
++            "--nldebug",
++            dest="nldebug",
++            action="store_true",
++            default=False,
++            help="print netlink debug messages"
++        )
+-- 
+2.20.1
+
