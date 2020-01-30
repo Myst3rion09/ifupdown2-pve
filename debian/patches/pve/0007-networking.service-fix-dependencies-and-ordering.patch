@@ -3,6 +3,17 @@ From: Thomas Lamprecht <t.lamprecht@proxmox.com>
 Date: Thu, 30 Jan 2020 12:48:23 +0100
 Subject: [PATCH] networking.service: fix dependencies and ordering
 
+IMPORTANT: DO NOT REMOVE IF UNSURE!
+
+ONLY IF IFUPDOWN2 FIXED THEIR SERVICE MESS.
+
+THEY CLOSED TWO PULL REQUESTS ALREADY WITHOUT REASON.
+
+SO WE JUST HAVE TO KEEP THIS DOWNSTREAM PATCH!
+
+BIG WARNING HERE IS DONE BECAUSE IT WAS ALREADY REMOVED BY MISTAKE
+ONCE!!
+
 Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
 ---
  debian/ifupdown2.networking.service | 6 ++++--
@@ -19,7 +30,7 @@ index b2acd97..ad9bad3 100644
 -Before=shutdown.target
  Conflicts=shutdown.target
 +Wants=network.target
-+After=local-fs.target network-pre.target apparmor.service systemd-sysctl.service systemd-modules-load.service
++After=local-fs.target network-pre.target systemd-sysctl.service systemd-modules-load.service
 +Before=network.target shutdown.target network-online.target
  
  [Service]
@@ -29,4 +40,4 @@ index b2acd97..ad9bad3 100644
  
  [Install]
 -WantedBy=basic.target network.target shutdown.target
-+WantedBy=basic.target network-online.target shutdown.target
++WantedBy=multi-user.target network-online.target
