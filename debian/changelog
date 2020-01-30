@@ -1,3 +1,9 @@
+ifupdown2 (2.0.1-1+pve3) pve; urgency=medium
+
+  * fix ordering and dependencies of networking.service
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 30 Jan 2020 12:51:45 +0100
+
 ifupdown2 (2.0.1-1+pve2) pve; urgency=medium
 
   * Update to 2.0.1-1
