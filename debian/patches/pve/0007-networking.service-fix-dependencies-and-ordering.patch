@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Thomas Lamprecht <t.lamprecht@proxmox.com>
+Date: Thu, 30 Jan 2020 12:48:23 +0100
+Subject: [PATCH] networking.service: fix dependencies and ordering
+
+Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
+---
+ debian/ifupdown2.networking.service | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/debian/ifupdown2.networking.service b/debian/ifupdown2.networking.service
+index b2acd97..ad9bad3 100644
+--- a/debian/ifupdown2.networking.service
++++ b/debian/ifupdown2.networking.service
+@@ -2,8 +2,10 @@
+ Description=Network initialization
+ Documentation=man:interfaces(5) man:ifup(8) man:ifdown(8)
+ DefaultDependencies=no
+-Before=shutdown.target
+ Conflicts=shutdown.target
++Wants=network.target
++After=local-fs.target network-pre.target apparmor.service systemd-sysctl.service systemd-modules-load.service
++Before=network.target shutdown.target network-online.target
+ 
+ [Service]
+ Type=oneshot
+@@ -15,4 +17,4 @@ ExecStop=/sbin/ifdown -a
+ ExecReload=/sbin/ifreload -a
+ 
+ [Install]
+-WantedBy=basic.target network.target shutdown.target
++WantedBy=basic.target network-online.target shutdown.target
