@@ -1,18 +1,18 @@
-From bae3a66ddfad4c0fcd86deeeac10b93b587ae199 Mon Sep 17 00:00:00 2001
+From 902cfb815abd85b9813f73c2bb0a5ea0fe70c03c Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
 Date: Mon, 31 Dec 2018 10:49:48 +0100
-Subject: [PATCH 7/7] config tuning
+Subject: [PATCH] config tuning
 
 multiple_vlan_aware_bridge_support=1
 
 Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
 Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
 ---
- etc/network/ifupdown2/ifupdown2.conf | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ etc/network/ifupdown2/ifupdown2.conf | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/etc/network/ifupdown2/ifupdown2.conf b/etc/network/ifupdown2/ifupdown2.conf
-index ecdd94f..57ba598 100644
+index ecdd94f..c974077 100644
 --- a/etc/network/ifupdown2/ifupdown2.conf
 +++ b/etc/network/ifupdown2/ifupdown2.conf
 @@ -45,7 +45,7 @@ addon_python_modules_support=1
@@ -24,6 +24,12 @@ index ecdd94f..57ba598 100644
  
  # ifquery check status strings.
  # By default `ifquery --check` prints the check and
+@@ -88,4 +88,4 @@ adjust_logical_dev_mtu=1
+ # if this directory doesn't exists ifupdown2 will create it
+ # if directory creation fails or state_dir variable is empty
+ # state_dir will default to /var/tmp/network/
+-state_dir=/var/tmp/network/
++state_dir=/run/network/
 -- 
 2.20.1
 
