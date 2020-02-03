@@ -1,3 +1,10 @@
+ifupdown2 (2.0.1-1+pve4) pve; urgency=medium
+
+  * execute addon scripts before module to ensure OVS interfaces are available
+    at the time they're now being configured...
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 03 Feb 2020 10:53:43 +0100
+
 ifupdown2 (2.0.1-1+pve3) pve; urgency=medium
 
   * fix ordering and dependencies of networking.service
