@@ -1,4 +1,4 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From 0aa90eb35e22ca156f6ab8fafd30071211bc3e50 Mon Sep 17 00:00:00 2001
 From: Thomas Lamprecht <t.lamprecht@proxmox.com>
 Date: Thu, 30 Jan 2020 12:48:23 +0100
 Subject: [PATCH] networking.service: fix dependencies and ordering
@@ -16,28 +16,66 @@ ONCE!!
 
 Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
 ---
- debian/ifupdown2.networking.service | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ debian/ifupdown2-pre.service        | 13 +++++++++++++
+ debian/ifupdown2.networking.service |  7 +++++--
+ debian/rules                        |  1 +
+ 3 files changed, 19 insertions(+), 2 deletions(-)
+ create mode 100644 debian/ifupdown2-pre.service
 
+diff --git a/debian/ifupdown2-pre.service b/debian/ifupdown2-pre.service
+new file mode 100644
+index 0000000..f0fb308
+--- /dev/null
++++ b/debian/ifupdown2-pre.service
+@@ -0,0 +1,13 @@
++[Unit]
++Description=Helper to synchronize boot up for ifupdown
++DefaultDependencies=no
++Wants=systemd-udevd.service
++After=systemd-udev-trigger.service
++Before=network.target
++
++[Service]
++Type=oneshot
++TimeoutSec=180
++RemainAfterExit=yes
++EnvironmentFile=-/etc/default/networking
++ExecStart=/usr/sbin/udevadm settle
 diff --git a/debian/ifupdown2.networking.service b/debian/ifupdown2.networking.service
-index b2acd97..ad9bad3 100644
+index b2acd97..8f54dc6 100644
 --- a/debian/ifupdown2.networking.service
 +++ b/debian/ifupdown2.networking.service
-@@ -2,8 +2,10 @@
+@@ -2,8 +2,11 @@
  Description=Network initialization
  Documentation=man:interfaces(5) man:ifup(8) man:ifdown(8)
  DefaultDependencies=no
 -Before=shutdown.target
  Conflicts=shutdown.target
++Requires=ifupdown2-pre.service
 +Wants=network.target
-+After=local-fs.target network-pre.target systemd-sysctl.service systemd-modules-load.service
++After=local-fs.target network-pre.target systemd-sysctl.service systemd-modules-load.service ifupdown2-pre.service
 +Before=network.target shutdown.target network-online.target
  
  [Service]
  Type=oneshot
-@@ -15,4 +17,4 @@ ExecStop=/sbin/ifdown -a
+@@ -15,4 +18,4 @@ ExecStop=/sbin/ifdown -a
  ExecReload=/sbin/ifreload -a
  
  [Install]
 -WantedBy=basic.target network.target shutdown.target
 +WantedBy=multi-user.target network-online.target
+diff --git a/debian/rules b/debian/rules
+index 6274b3a..9168c08 100755
+--- a/debian/rules
++++ b/debian/rules
+@@ -15,6 +15,7 @@ override_dh_install:
+ 	dh_install
+ 	mkdir -p debian/ifupdown2/lib/systemd/system/
+ 	install --mode=644 debian/ifup@.service debian/ifupdown2/lib/systemd/system/
++	install --mode=644 debian/ifupdown2-pre.service debian/ifupdown2/lib/systemd/system/
+ 
+ 
+ override_dh_systemd_start:
+-- 
+2.20.1
+
