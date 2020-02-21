@@ -9,3 +9,4 @@ pve/0006-config-tuning.patch
 pve/0007-networking.service-fix-dependencies-and-ordering.patch
 pve/0008-add-openvswitch-addon.patch
 pve/0009-networking.service-ifup-ifdown-allow-ovs-on-start-st.patch
+pve/0010-postinst-rm-update-network-config-compatibility.patch

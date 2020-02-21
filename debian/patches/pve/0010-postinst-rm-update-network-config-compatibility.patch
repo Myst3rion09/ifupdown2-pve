@@ -1,0 +1,85 @@
+From e93b858e2c6d46f3c7166f8b980518457e7f2e65 Mon Sep 17 00:00:00 2001
+From: Alexandre Derumier <aderumier@odiso.com>
+Date: Fri, 21 Feb 2020 10:01:59 +0100
+Subject: [PATCH] postinst/rm : update network config compatibility
+
+Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
+---
+ debian/ifupdown2.postinst | 19 +++++++++++++++++++
+ debian/ifupdown2.postrm   | 19 +++++++++++++++++++
+ 2 files changed, 38 insertions(+)
+
+diff --git a/debian/ifupdown2.postinst b/debian/ifupdown2.postinst
+index 3689256..4b628e1 100644
+--- a/debian/ifupdown2.postinst
++++ b/debian/ifupdown2.postinst
+@@ -85,6 +85,24 @@ postinst_remove_diverts()
+     _postinst_remove_diverts "/usr/share/man/man5/interfaces.5.gz"
+ }
+ 
++proxmox_compatibility()
++{
++    perl -e '
++	use PVE::INotify;
++	my $config = PVE::INotify::read_file('interfaces', 1);
++	my $configdata = $config->{data};
++
++	PVE::INotify::write_file('interfaces', $configdata);
++
++	my $config = PVE::INotify::read_file('interfaces', 1);
++
++	if(defined($config->{changes})) {
++	    print $config->{changes};
++	    print "network config changes has been detected for ifupdown2 compatibility and generated in /etc/network/interfaces.new\n";
++	}
++    '
++}
++
+ case "$1" in
+     configure)
+         fix_dhclient_file_with_space
+@@ -92,6 +110,7 @@ case "$1" in
+         process_udev
+         chmod +x /usr/share/ifupdown2/__main__.py
+         postinst_remove_diverts
++        proxmox_compatibility
+     ;;
+ 
+     abort-upgrade|abort-remove|abort-deconfigure)
+diff --git a/debian/ifupdown2.postrm b/debian/ifupdown2.postrm
+index 5d90b21..bab3dd0 100644
+--- a/debian/ifupdown2.postrm
++++ b/debian/ifupdown2.postrm
+@@ -25,10 +25,29 @@ process_udev()
+     fi
+ }
+ 
++proxmox_compatibility()
++{
++    perl -e '
++        use PVE::INotify;
++        my $config = PVE::INotify::read_file('interfaces', 1);
++        my $configdata = $config->{data};
++
++        PVE::INotify::write_file('interfaces', $configdata);
++
++        my $config = PVE::INotify::read_file('interfaces', 1);
++
++        if(defined($config->{changes})) {
++            print $config->{changes};
++            print "network config changes has been detected for ifupdown1 compatibility and generated in /etc/network/interfaces.new\n";
++        }
++    '
++}
++
+ case "$1" in
+     purge|remove|abort-install|disappear)
+         process_state_file
+         process_udev
++        proxmox_compatibility
+     ;;
+ 
+     upgrade|failed-upgrade|abort-upgrade|disappear)
+-- 
+2.20.1
+
