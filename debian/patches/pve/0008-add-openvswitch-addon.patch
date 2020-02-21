@@ -1,0 +1,572 @@
+From 6d79fb897779792363f8b50a44bfd3b4dee11e15 Mon Sep 17 00:00:00 2001
+From: Alexandre Derumier <aderumier@odiso.com>
+Date: Mon, 17 Feb 2020 13:32:18 +0100
+Subject: [PATCH] add openvswitch addon
+
+---
+ etc/network/ifupdown2/addons.conf    |   4 +
+ ifupdown2/addons/openvswitch.py      | 226 ++++++++++++++++++++++
+ ifupdown2/addons/openvswitch_port.py | 274 +++++++++++++++++++++++++++
+ ifupdown2/lib/iproute2.py            |   3 +
+ ifupdown2/nlmanager/nlpacket.py      |   1 +
+ 5 files changed, 508 insertions(+)
+ create mode 100644 ifupdown2/addons/openvswitch.py
+ create mode 100644 ifupdown2/addons/openvswitch_port.py
+
+diff --git a/etc/network/ifupdown2/addons.conf b/etc/network/ifupdown2/addons.conf
+index e3639a7..99aca90 100644
+--- a/etc/network/ifupdown2/addons.conf
++++ b/etc/network/ifupdown2/addons.conf
+@@ -1,3 +1,5 @@
++pre-up,openvswitch
++pre-up,openvswitch_port
+ pre-up,xfrm
+ pre-up,link
+ pre-up,ppp
+@@ -45,3 +47,5 @@ post-down,usercmds
+ post-down,link
+ post-down,tunnel
+ post-down,xfrm
++post-down,openvswitch_port
++post-down,openvswitch
+diff --git a/ifupdown2/addons/openvswitch.py b/ifupdown2/addons/openvswitch.py
+new file mode 100644
+index 0000000..6369c7e
+--- /dev/null
++++ b/ifupdown2/addons/openvswitch.py
+@@ -0,0 +1,226 @@
++#!/usr/bin/python
++#
++# Copyright 2020 Alexandre Derumier <aderumier@odiso.com>
++# Author: Alexandre Derumier, aderumier@odiso.com
++#
++
++try:
++    from ifupdown2.lib.addon import Addon
++
++    from ifupdown2.ifupdown.iface import *
++    from ifupdown2.ifupdown.utils import utils
++    from ifupdown2.ifupdownaddons.modulebase import moduleBase
++    from ifupdown2.ifupdown.exceptions import moduleNotSupported
++    import ifupdown2.ifupdown.ifupdownflags as ifupdownflags
++
++except:
++    from lib.addon import Addon
++
++    from ifupdown.iface import *
++    from ifupdown.utils import utils
++    from ifupdownaddons.modulebase import moduleBase
++    from ifupdown.exceptions import moduleNotSupported
++    import ifupdown.ifupdownflags as ifupdownflags
++
++import logging
++import re
++import subprocess
++import os
++
++class openvswitch(Addon, moduleBase):
++    """  ifupdown2 addon module to configure Openvswitch bridge """
++
++    _modinfo = {
++        'mhelp': 'openvswitch module configure openvswitch bridges',
++        'attrs': {
++            'ovs-ports': {
++                'help': 'Interfaces to be part of this ovs bridge.',
++                'validvals': ['<interface-list>'],
++                'required': False,
++            },
++            'ovs-type': {
++                'help': 'ovs interface type',
++                'validvals': ['OVSBridge'],
++                'required': True,
++            },
++            'ovs-mtu': {
++                'help': 'Interface MTU (maximum transmission unit)',
++                'validrange': ['552', '9216'],
++                'example': ['ovs-mtu 1600'],
++                'default': '1500'
++            },
++            'ovs-options': {
++                'help': 'This option lets you add extra arguments to a ovs-vsctl command',
++                'required': False,
++            },
++            'ovs-extra': {
++                'help': 'This option lets you run additional ovs-vsctl commands,'  +
++                        'separated by "--" (double dash). Variables can be part of the "ovs_extra"' +
++                        'option. You can provide all the standard environmental variables' + 
++                        'described in the interfaces(5) man page. You can also pass shell' +
++                        'commands.extra args',
++                'required': False,
++                'example': ['ovs_extra set bridge ${IFACE} other-config:hwaddr=00:59:cf:9c:84:3a -- br-set-external-id ${IFACE} bridge-id ${IFACE}']
++
++            },
++        }
++    }
++
++    def __init__ (self, *args, **kargs):
++        moduleBase.__init__ (self, *args, **kargs)
++        Addon.__init__(self)
++        if not os.path.exists('/usr/bin/ovs-vsctl'):
++            raise moduleNotSupported('module init failed: no /usr/bin/ovs-vsctl found')
++
++    def _is_ovs_bridge (self, ifaceobj):
++        ovstype = ifaceobj.get_attr_value_first('ovs-type')
++        if ovstype:
++            if ovstype == 'OVSBridge':
++                return True
++            else:
++                return False
++        return False
++
++    def _get_ovs_ports (self, ifaceobj):
++        ovs_ports = ifaceobj.get_attr_value_first('ovs-ports')
++        if ovs_ports:
++            return sorted (ovs_ports.split ())
++        return None
++
++    def _get_running_ovs_ports (self, iface):
++        output = utils.exec_command("/usr/bin/ovs-vsctl list-ports %s" %iface)
++        if output:
++            ovs_ports = sorted(output.splitlines())
++            return ovs_ports
++        return None
++
++    def _ovs_vsctl(self, ifaceobj, cmdlist):
++
++        if cmdlist:
++
++            os.environ['IFACE'] = ifaceobj.name if ifaceobj.name else ''
++            os.environ['LOGICAL'] = ifaceobj.name if ifaceobj.name else ''
++            os.environ['METHOD'] = ifaceobj.addr_method if ifaceobj.addr_method else ''
++            os.environ['ADDRFAM'] = ','.join(ifaceobj.addr_family) if ifaceobj.addr_family else ''
++
++            finalcmd = "/usr/bin/ovs-vsctl"
++
++            for cmd in cmdlist:
++                finalcmd = finalcmd + " -- " + cmd
++
++            try:
++                self.logger.debug ("Running %s" % (finalcmd))
++                utils.exec_user_command(finalcmd)
++            except subprocess.CalledProcessError as c:
++                raise Exception ("Command \"%s failed: %s" % (finalcmd, c.output))
++            except Exception as e:
++                raise Exception ("%s" % e)
++
++    def _addbridge (self, ifaceobj):
++
++        iface = ifaceobj.name
++        ovsoptions = ifaceobj.get_attr_value_first ('ovs-options')
++        ovsextra = ifaceobj.get_attr_value('ovs-extra')
++        ovsmtu = ifaceobj.get_attr_value_first ('ovs-mtu')
++
++        cmd_list = []
++
++        cmd = "--may-exist add-br %s"%(iface)
++        cmd_list.append(cmd)
++
++        if ovsoptions:
++            cmd = "set bridge %s %s" %(iface, ovsoptions)
++            cmd_list.append(cmd)
++
++        #update
++        if self.cache.link_exists (iface):
++            # on update, delete active ports not in the new port list
++            ovs_ports = self._get_ovs_ports(ifaceobj)
++            running_ovs_ports = self._get_running_ovs_ports(iface)
++            if running_ovs_ports is not None and ovs_ports is not None:
++                missingports = list(set(running_ovs_ports) - set(ovs_ports))
++
++            if missingports is not None:
++                for port in missingports:
++                    cmd = "--if-exists del-port %s %s"%(iface, port)
++                    cmd_list.append(cmd)
++
++            #clear old bridge options
++            cmd = "--if-exists clear bridge %s auto_attach controller external-ids fail_mode flood_vlans ipfix mirrors netflow other_config protocols sflow"%(iface)
++
++            cmd_list.append(cmd)
++
++            #clear old interface options
++            cmd = "--if-exists clear interface %s mtu_request external-ids other_config options"%(iface)
++            cmd_list.append(cmd)
++
++        if ovsextra is not None:
++            cmd_list.extend(ovsextra)
++
++        if ovsmtu is not None:
++            cmd = "set Interface %s mtu_request=%s"%(iface, ovsmtu)
++            cmd_list.append(cmd)
++
++        self._ovs_vsctl(ifaceobj, cmd_list)
++        if not self.cache.link_exists(ifaceobj.name):
++            self.iproute2.link_add_openvswitch(ifaceobj.name, "openvswitch")
++
++    def _delbridge (self, ifaceobj):
++
++        cmd = "del-br %s"%(ifaceobj.name)
++        self._ovs_vsctl(ifaceobj, [cmd])
++
++    def get_dependent_ifacenames (self, ifaceobj, ifaceobjs_all=None):
++        return None
++
++    def _up (self, ifaceobj):
++        self._addbridge (ifaceobj)
++
++    def _down (self, ifaceobj):
++        if not ifupdownflags.flags.PERFMODE and not self.cache.link_exists (ifaceobj.name):
++           return
++
++        self._delbridge (ifaceobj)
++
++    def _query_check (self, ifaceobj, ifaceobjcurr):
++        if not self.cache.link_exists (ifaceobj.name):
++            return
++        return
++
++    _run_ops = {
++        'pre-up': _up,
++        'post-down': _down,
++        'query-checkcurr': _query_check
++    }
++
++    def get_ops (self):
++        """ returns list of ops supported by this module """
++        return self._run_ops.keys ()
++
++    def run (self, ifaceobj, operation, query_ifaceobj = None, **extra_args):
++        """ run openvswitch configuration on the interface object passed as argument
++
++        Args:
++            **ifaceobj** (object): iface object
++
++            **operation** (str): any of 'pre-up', 'post-down', 'query-checkcurr',
++                                 'query-running'
++        Kwargs:
++            **query_ifaceobj** (object): query check ifaceobject. This is only
++                valid when op is 'query-checkcurr'. It is an object same as
++                ifaceobj, but contains running attribute values and its config
++                status. The modules can use it to return queried running state
++                of interfaces. status is success if the running state is same
++                as user required state in ifaceobj. error otherwise.
++        """
++        op_handler = self._run_ops.get (operation)
++        if not op_handler:
++            return
++
++        if (operation != 'query-running' and not self._is_ovs_bridge (ifaceobj)):
++            return
++
++        if operation == 'query-checkcurr':
++            op_handler (self, ifaceobj, query_ifaceobj)
++        else:
++            op_handler (self, ifaceobj)
+diff --git a/ifupdown2/addons/openvswitch_port.py b/ifupdown2/addons/openvswitch_port.py
+new file mode 100644
+index 0000000..e34cc18
+--- /dev/null
++++ b/ifupdown2/addons/openvswitch_port.py
+@@ -0,0 +1,274 @@
++#!/usr/bin/python
++#
++# Copyright 2020 Alexandre Derumier <aderumier@odiso.com>
++# Author: Alexandre Derumier, aderumier@odiso.com
++#
++
++try:
++    from ifupdown2.lib.addon import Addon
++
++    from ifupdown2.ifupdown.iface import *
++    from ifupdown2.ifupdown.utils import utils
++    from ifupdown2.ifupdownaddons.modulebase import moduleBase
++    from ifupdown2.ifupdown.exceptions import moduleNotSupported
++    import ifupdown2.ifupdown.ifupdownflags as ifupdownflags
++
++except:
++    from lib.addon import Addon
++
++    from ifupdown.iface import *
++    from ifupdown.utils import utils
++    from ifupdownaddons.modulebase import moduleBase
++    from ifupdown.exceptions import moduleNotSupported
++    import ifupdown.ifupdownflags as ifupdownflags
++
++import logging
++import re
++import subprocess
++import os
++
++class openvswitch_port(Addon, moduleBase):
++    """  ifupdown2 addon module to configure openvswitch ports """
++
++    _modinfo = {
++        'mhelp': 'openvswitch module configure openvswitch ports',
++        'attrs': {
++            'ovs-bridge': {
++                'help': 'Interfaces to be part of this ovs bridge',
++                'required': True,
++            },
++            'ovs-type': {
++                'help': 'ovs interface type',
++                'validvals': ['OVSPort', 'OVSIntPort', 'OVSBond', 'OVSTunnel', 'OVSPatchPort'],
++                'required': True,
++                'example': ['ovs-type OVSPort'],
++            },
++            'ovs-options': {
++                'help': 'This option lets you add extra arguments to a ovs-vsctl command',
++                'required': False,
++                'example': ['ovs_options bond_mode=balance-tcp lacp=active tag=100']
++            },
++            'ovs-extra': {
++                'help': 'This option lets you run additional ovs-vsctl commands,'  +
++                        'separated by "--" (double dash). Variables can be part of the "ovs_extra"' +
++                        'option. You can provide all the standard environmental variables' + 
++                        'described in the interfaces(5) man page. You can also pass shell' +
++                        'commands.extra args',
++                'required': False,
++                'example': ['ovs_extra set interface ${IFACE} external-ids:iface-id=$(hostname -s)']
++            },
++            'ovs-bonds': {
++                'help': 'Interfaces to be part of this ovs bond',
++                'validvals': ['<interface-list>'],
++                'required': False,
++            },
++            'ovs-tunnel-type': {
++                'help': 'For "OVSTunnel" interfaces, the type of the tunnel',
++                'required': False,
++                'example': ['ovs-tunnel-type gre'],
++            },
++            'ovs-tunnel-options': {
++                'help': 'For "OVSTunnel" interfaces, this field should be ' +
++                        'used to specify the tunnel options like remote_ip, key, etc.',
++                'required': False,
++                'example': ['ovs-tunnel-options options:remote_ip=182.168.1.2 options:key=1'],
++            },
++            'ovs-patch-peer': {
++                'help': 'ovs patch peer',
++                'required': False,
++                'example': ['ovs-patch-peer patch0'],
++            },
++            'ovs-mtu': {
++                'help': 'mtu of the ovs interface',
++                'required': False,
++                'example': ['ovs-mtu 9000'],
++            },
++        }
++    }
++
++    def __init__ (self, *args, **kargs):
++        moduleBase.__init__ (self, *args, **kargs)
++        Addon.__init__(self)
++        if not os.path.exists('/usr/bin/ovs-vsctl'):
++            raise moduleNotSupported('module init failed: no /usr/bin/ovs-vsctl found')
++
++    def _is_ovs_port (self, ifaceobj):
++        ovstype = ifaceobj.get_attr_value_first ('ovs-type')
++        ovsbridge = ifaceobj.get_attr_value_first ('ovs-bridge')
++        if ovstype and ovsbridge:
++            return True
++        return False
++
++    def _get_bond_ifaces (self, ifaceobj):
++        ovs_bonds = ifaceobj.get_attr_value_first ('ovs-bonds')
++        if ovs_bonds:
++            return sorted (ovs_bonds.split ())
++        return None
++
++    def _ovs_vsctl(self, ifaceobj, cmdlist):
++
++        if cmdlist:
++
++            os.environ['IFACE'] = ifaceobj.name if ifaceobj.name else ''
++            os.environ['LOGICAL'] = ifaceobj.name if ifaceobj.name else ''
++            os.environ['METHOD'] = ifaceobj.addr_method if ifaceobj.addr_method else ''
++            os.environ['ADDRFAM'] = ','.join(ifaceobj.addr_family) if ifaceobj.addr_family else ''
++
++            finalcmd = "/usr/bin/ovs-vsctl"
++
++            for cmd in cmdlist:
++                finalcmd = finalcmd + " -- " + cmd
++
++            try:
++                self.logger.debug ("Running %s" % (finalcmd))
++                utils.exec_user_command(finalcmd)
++            except subprocess.CalledProcessError as c:
++                raise Exception ("Command \"%s failed: %s" % (finalcmd, c.output))
++            except Exception as e:
++                raise Exception ("%s" % e)
++
++    def _addport (self, ifaceobj):
++        iface = ifaceobj.name
++        ovsbridge = ifaceobj.get_attr_value_first ('ovs-bridge')
++        ovsoptions = ifaceobj.get_attr_value_first ('ovs-options')
++        ovstype = ifaceobj.get_attr_value_first ('ovs-type')
++        ovsbonds = ifaceobj.get_attr_value_first ('ovs-bonds')
++        ovsextra = ifaceobj.get_attr_value('ovs-extra')
++
++        cmd_list = []
++
++        if ovstype == 'OVSBond':
++           if ovsbonds is None:
++               raise Exception ("missing ovs-bonds option")
++           cmd = "--may-exist --fake-iface add-bond %s %s %s"%(ovsbridge, iface, ovsbonds)
++           cmd_list.append(cmd)
++        else:
++           cmd = "--may-exist add-port %s %s"%(ovsbridge, iface)
++           cmd_list.append(cmd)
++
++
++        #clear old ports options
++        cmd = "--if-exists clear port %s bond_active_slave bond_mode cvlans external_ids lacp mac other_config qos tag trunks vlan_mode"%(iface)
++        cmd_list.append(cmd)
++
++        #clear old interface options
++        cmd = "--if-exists clear interface %s mtu_request external-ids other_config options"%(iface)
++        cmd_list.append(cmd)
++
++        if ovsoptions:
++            cmd = "set Port %s %s" %(iface, ovsoptions)
++            cmd_list.append(cmd)
++
++
++        if ovstype == 'OVSIntPort':
++            cmd = "set Interface %s type=internal"%(iface)
++            cmd_list.append(cmd)
++
++        if ovstype == 'OVSTunnel':
++            ovstunneltype = ifaceobj.get_attr_value_first ('ovs-tunnel-type')
++            if ovstunneltype is None:
++                raise Exception ("missing ovs-tunnel-type option")
++            ovstunneloptions = ifaceobj.get_attr_value_first('ovs-tunnel-options')
++            if ovstunneloptions is None:
++                raise Exception ("missing ovs-tunnel-options option")
++            cmd = "set Interface %s type=%s %s"%(iface, ovstunneltype, ovstunneloptions)
++            cmd_list.append(cmd)
++
++        if ovstype == 'OVSPatchPort':
++            ovspatchpeer = ifaceobj.get_attr_value_first ('ovs-patch-peer')
++            if ovspatchpeer is None:
++                raise Exception ("missing ovs-patch-peer")
++            cmd = "set Interface %s type=patch options:peer=%s"%(iface, ovspatchpeer)
++            cmd_list.append(cmd)
++
++        #mtu
++        ovsmtu = ifaceobj.get_attr_value_first ('ovs-mtu')
++        ovsbonds_list = self._get_bond_ifaces(ifaceobj)
++        if ovsmtu is not None:
++            #we can't set mtu on bond fake interface, we apply it on slaves interfaces
++            if ovstype == 'OVSBond' and ovsbonds_list is not None:
++                for slave in ovsbonds_list: 
++                    cmd = "set Interface %s mtu_request=%s"%(slave,ovsmtu)
++                    cmd_list.append(cmd)
++
++            else:
++                cmd = "set Interface %s mtu_request=%s"%(iface,ovsmtu)
++                cmd_list.append(cmd)
++
++        #extra
++        if ovsextra is not None:
++            cmd_list.extend(ovsextra)
++
++        self._ovs_vsctl(ifaceobj, cmd_list)
++
++        if ovstype != 'OVSTunnel' and ovstype != 'OVSPatchPort':
++            if not self.cache.link_exists(ifaceobj.name):
++                self.iproute2.link_add_openvswitch(ifaceobj.name, "openvswitch")
++
++    def _delport (self, ifaceobj):
++        iface = ifaceobj.name
++        ovsbridge = ifaceobj.get_attr_value_first ('ovs-bridge')
++        cmd = "--if-exists del-port %s %s"%(ovsbridge, iface)
++
++        self._ovs_vsctl(ifaceobj, [cmd])
++
++    def get_dependent_ifacenames (self, ifaceobj, ifaceobjs_all=None):
++
++        if not self._is_ovs_port (ifaceobj):
++            return None
++
++        ovsbridge = ifaceobj.get_attr_value_first ('ovs-bridge')
++        return [ovsbridge]
++
++    def _up (self, ifaceobj):
++
++        self._addport (ifaceobj)
++
++    def _down (self, ifaceobj):
++        if not ifupdownflags.flags.PERFMODE and not self.cache.link_exists (ifaceobj.name):
++           return
++
++        self._delport (ifaceobj)
++
++    def _query_check (self, ifaceobj, ifaceobjcurr):
++        if not self.cache.link_exists (ifaceobj.name):
++            return
++        return
++
++    _run_ops = {
++        'pre-up': _up,
++        'post-down': _down,
++        'query-checkcurr': _query_check
++    }
++
++    def get_ops (self):
++        """ returns list of ops supported by this module """
++        return self._run_ops.keys ()
++
++    def run (self, ifaceobj, operation, query_ifaceobj = None, **extra_args):
++        """ run Openvswitch port configuration on the interface object passed as argument
++
++        Args:
++            **ifaceobj** (object): iface object
++
++            **operation** (str): any of 'pre-up', 'post-down', 'query-checkcurr',
++                                 'query-running'
++        Kwargs:
++            **query_ifaceobj** (object): query check ifaceobject. This is only
++                valid when op is 'query-checkcurr'. It is an object same as
++                ifaceobj, but contains running attribute values and its config
++                status. The modules can use it to return queried running state
++                of interfaces. status is success if the running state is same
++                as user required state in ifaceobj. error otherwise.
++        """
++        op_handler = self._run_ops.get (operation)
++        if not op_handler:
++            return
++
++        if (operation != 'query-running' and not self._is_ovs_port (ifaceobj)):
++            return
++
++        if operation == 'query-checkcurr':
++            op_handler (self, ifaceobj, query_ifaceobj)
++        else:
++            op_handler (self, ifaceobj)
+diff --git a/ifupdown2/lib/iproute2.py b/ifupdown2/lib/iproute2.py
+index 704d120..a1223b9 100644
+--- a/ifupdown2/lib/iproute2.py
++++ b/ifupdown2/lib/iproute2.py
+@@ -334,6 +334,9 @@ class IPRoute2(Cache, Requirements):
+     def link_add_xfrm(ifname, xfrm_name, xfrm_id):
+         utils.exec_commandl(['ip', 'link', 'add', xfrm_name, 'type', 'xfrm', 'dev', ifname, 'if_id', xfrm_id])
+ 
++    def link_add_openvswitch(self, ifname, kind):
++        self.__update_cache_after_link_creation(ifname, kind)
++
+     ############################################################################
+     # TUNNEL
+     ############################################################################
+diff --git a/ifupdown2/nlmanager/nlpacket.py b/ifupdown2/nlmanager/nlpacket.py
+index fcb89fb..c8a0697 100644
+--- a/ifupdown2/nlmanager/nlpacket.py
++++ b/ifupdown2/nlmanager/nlpacket.py
+@@ -2791,6 +2791,7 @@ class AttributeIFLA_LINKINFO(Attribute):
+             "dummy",
+             "bridge",
+             "macvlan",
++            "openvswitch"
+         ):
+             self.log.debug('Unsupported IFLA_INFO_KIND %s' % kind)
+             return
+-- 
+2.20.1
+
