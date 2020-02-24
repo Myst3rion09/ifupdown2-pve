@@ -1,4 +1,5 @@
 extra/0001-argv-move-nldebug-option-to-common_argparse-to-avoid.patch
+extra/0002-fix-default-forwarding.patch
 pve/0001-don-t-remove-tap-veth-fwpr-interfaces-from-bridge-on.patch
 pve/0002-add-dummy-mtu-bridgevlanport-modules.patch
 pve/0003-allow-vlan-subinterface-in-a-vlan-aware-bridge.patch
