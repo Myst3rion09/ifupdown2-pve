@@ -17,6 +17,7 @@ Architecture: all
 Provides: ifupdown
 Conflicts: ifupdown
 Replaces: ifupdown
+Breaks: libpve-common-perl (<< 6.0-14), openvswitch-switch (<< 2.12.0-1)
 Depends: ${python:Depends}, ${misc:Depends}, iproute2, python-argcomplete, python-ipaddr
 Suggests: isc-dhcp-client, bridge-utils, ethtool, python-gvgen, python-mako
 Description: Network Interface Management tool similar to ifupdown
