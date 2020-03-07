@@ -1,3 +1,21 @@
+ifupdown2 (2.0.1-1+pve5) pve; urgency=medium
+
+  * add openvswitch addon
+
+  * add patch to ifup/ifdown allow=ovs on start/stop
+
+  * add ifupdown2-pre.service service to be sure that networking devices are
+    correctly setup before networking service is started
+
+  * do not change interface forwarding value if not defined
+
+  * read/write the network configuration on upgrade and removal of the
+    ifupdown2 package, writing eventual changes to the pending 'interfaces.new'
+    changes file. This ensures compatibility adapations for a respective
+    ifupdwon2 or ifupdown1 version are enforced.
+
+ -- Proxmox Support Team <support@proxmox.com>  Sat, 07 Mar 2020 16:50:32 +0100
+
 ifupdown2 (2.0.1-1+pve4) pve; urgency=medium
 
   * execute addon scripts before module to ensure OVS interfaces are available
