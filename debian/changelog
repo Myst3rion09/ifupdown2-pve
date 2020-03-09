@@ -1,4 +1,4 @@
-ifupdown2 (2.0.1-1+pve5) pve; urgency=medium
+ifupdown2 (2.0.1-1+pve6) pve; urgency=medium
 
   * add openvswitch addon
 
@@ -14,7 +14,7 @@ ifupdown2 (2.0.1-1+pve5) pve; urgency=medium
     changes file. This ensures compatibility adapations for a respective
     ifupdwon2 or ifupdown1 version are enforced.
 
- -- Proxmox Support Team <support@proxmox.com>  Sat, 07 Mar 2020 16:50:32 +0100
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 09 Mar 2020 13:25:58 +0100
 
 ifupdown2 (2.0.1-1+pve4) pve; urgency=medium
 
