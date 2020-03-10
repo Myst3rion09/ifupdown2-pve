@@ -29,8 +29,8 @@ index 3689256..4b628e1 100644
 +	$config = PVE::INotify::read_file('interfaces', 1);
 +
 +	if (defined($config->{changes})) {
-+	    print $config->{changes};
-+	    print "network config changes has been detected for ifupdown2 compatibility and generated in /etc/network/interfaces.new\n";
++	    #print $config->{changes};
++	    print "\nnetwork config changes have been detected for ifupdown2 compatibility.\nSaved in /etc/network/interfaces.new for hot-apply or next reboot.\n\n";
 +	}
 +    ' || true
 +}
@@ -66,8 +66,8 @@ index 5d90b21..bab3dd0 100644
 +        $config = PVE::INotify::read_file('interfaces', 1);
 +
 +        if (defined($config->{changes})) {
-+            print $config->{changes};
-+            print "network config changes has been detected for ifupdown1 compatibility and generated in /etc/network/interfaces.new\n";
++            #print $config->{changes};
++            print "\nnetwork config changes have been detected for ifupdown2 to ifupdown1 switch compatibility.\nSaved in /etc/network/interfaces.new for next reboot\n\n";
 +        }
 +    ' || true
 +}
