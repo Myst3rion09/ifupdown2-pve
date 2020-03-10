@@ -1,3 +1,9 @@
+ifupdown2 (2.0.1-1+pve7) pve; urgency=medium
+
+  * fupdown2-pre.service: fix udevadm path for non usr-merged systems
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 10 Mar 2020 08:09:53 +0100
+
 ifupdown2 (2.0.1-1+pve6) pve; urgency=medium
 
   * add openvswitch addon
