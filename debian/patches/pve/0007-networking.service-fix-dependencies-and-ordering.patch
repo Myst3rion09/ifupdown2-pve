@@ -40,7 +40,7 @@ index 0000000..f0fb308
 +TimeoutSec=180
 +RemainAfterExit=yes
 +EnvironmentFile=-/etc/default/networking
-+ExecStart=/usr/sbin/udevadm settle
++ExecStart=/bin/udevadm settle
 diff --git a/debian/ifupdown2.networking.service b/debian/ifupdown2.networking.service
 index b2acd97..8f54dc6 100644
 --- a/debian/ifupdown2.networking.service
