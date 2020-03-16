@@ -1,3 +1,9 @@
+ifupdown2 (2.0.1-1+pve8) pve; urgency=medium
+
+  * drop now outdated allow=ovs systemd service ExecStart/Stop adaption
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 16 Mar 2020 06:33:45 +0100
+
 ifupdown2 (2.0.1-1+pve7) pve; urgency=medium
 
   * fupdown2-pre.service: fix udevadm path for non usr-merged systems
