@@ -1,20 +1,21 @@
-From 6d79fb897779792363f8b50a44bfd3b4dee11e15 Mon Sep 17 00:00:00 2001
+From 4311f4deb9b95e67694c04ced13782a3608a176b Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
 Date: Mon, 17 Feb 2020 13:32:18 +0100
 Subject: [PATCH] add openvswitch addon
 
+Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
 ---
  etc/network/ifupdown2/addons.conf    |   4 +
- ifupdown2/addons/openvswitch.py      | 226 ++++++++++++++++++++++
+ ifupdown2/addons/openvswitch.py      | 248 ++++++++++++++++++++++++
  ifupdown2/addons/openvswitch_port.py | 274 +++++++++++++++++++++++++++
  ifupdown2/lib/iproute2.py            |   3 +
  ifupdown2/nlmanager/nlpacket.py      |   1 +
- 5 files changed, 508 insertions(+)
+ 5 files changed, 530 insertions(+)
  create mode 100644 ifupdown2/addons/openvswitch.py
  create mode 100644 ifupdown2/addons/openvswitch_port.py
 
 diff --git a/etc/network/ifupdown2/addons.conf b/etc/network/ifupdown2/addons.conf
-index e3639a7..99aca90 100644
+index c43d377..8811cc2 100644
 --- a/etc/network/ifupdown2/addons.conf
 +++ b/etc/network/ifupdown2/addons.conf
 @@ -1,3 +1,5 @@
@@ -23,7 +24,7 @@ index e3639a7..99aca90 100644
  pre-up,xfrm
  pre-up,link
  pre-up,ppp
-@@ -45,3 +47,5 @@ post-down,usercmds
+@@ -43,3 +45,5 @@ post-down,usercmds
  post-down,link
  post-down,tunnel
  post-down,xfrm
@@ -31,10 +32,10 @@ index e3639a7..99aca90 100644
 +post-down,openvswitch
 diff --git a/ifupdown2/addons/openvswitch.py b/ifupdown2/addons/openvswitch.py
 new file mode 100644
-index 0000000..6369c7e
+index 0000000..1d4c563
 --- /dev/null
 +++ b/ifupdown2/addons/openvswitch.py
-@@ -0,0 +1,226 @@
+@@ -0,0 +1,248 @@
 +#!/usr/bin/python
 +#
 +# Copyright 2020 Alexandre Derumier <aderumier@odiso.com>
@@ -100,6 +101,12 @@ index 0000000..6369c7e
 +                'example': ['ovs_extra set bridge ${IFACE} other-config:hwaddr=00:59:cf:9c:84:3a -- br-set-external-id ${IFACE} bridge-id ${IFACE}']
 +
 +            },
++            'ovs-ports-condone-regex': {
++                    "help": "bridge ports to ignore/condone when reloading config / removing interfaces",
++                    "required": False,
++                    "default": "^(tap|veth|fwln)",
++                    "example": ["ovs-ports-condone-regex ^[a-zA-Z0-9]+_v[0-9]{1,4}$"]
++            },
 +        }
 +    }
 +
@@ -129,6 +136,17 @@ index 0000000..6369c7e
 +        if output:
 +            ovs_ports = sorted(output.splitlines())
 +            return ovs_ports
++        return None
++
++    def _get_ovs_port_condone_regex(self, ifaceobj, get_string = False):
++        ovs_port_condone_regex = ifaceobj.get_attr_value_first('ovs-ports-condone-regex')
++        if not ovs_port_condone_regex:
++            ovs_port_condone_regex = self.get_attr_default_value('ovs-ports-condone-regex')
++
++        if ovs_port_condone_regex:
++            if get_string:
++                return ovs_port_condone_regex
++            return re.compile (r"%s" % ovs_port_condone_regex)
 +        return None
 +
 +    def _ovs_vsctl(self, ifaceobj, cmdlist):
@@ -171,6 +189,8 @@ index 0000000..6369c7e
 +
 +        #update
 +        if self.cache.link_exists (iface):
++
++            ovsportscondoneregex = self._get_ovs_port_condone_regex(ifaceobj)
 +            # on update, delete active ports not in the new port list
 +            ovs_ports = self._get_ovs_ports(ifaceobj)
 +            running_ovs_ports = self._get_running_ovs_ports(iface)
@@ -179,6 +199,9 @@ index 0000000..6369c7e
 +
 +            if missingports is not None:
 +                for port in missingports:
++                    if ovsportscondoneregex and ovsportscondoneregex.match(port):
++                        self.logger.info("%s: port %s will stay enslaved as it matches with ovs-ports-condone-regex" % (ifaceobj.name, port))
++                        continue
 +                    cmd = "--if-exists del-port %s %s"%(iface, port)
 +                    cmd_list.append(cmd)
 +
