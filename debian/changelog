@@ -1,9 +1,11 @@
-ifupdown2 (2.0.1-1+pve9) pve; urgency=medium
+ifupdown2 (2.0.1-1+pve10) pve; urgency=medium
+
+  * avoid bringing network config in sync if pve-common isn't available
 
   * openvswitch: do not remove tap|veth interfaces when adding an internal ovs
     port
 
- -- Proxmox Support Team <support@proxmox.com>  Tue, 19 May 2020 08:26:10 +0200
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 19 May 2020 22:11:49 +0200
 
 ifupdown2 (2.0.1-1+pve8) pve; urgency=medium
 
