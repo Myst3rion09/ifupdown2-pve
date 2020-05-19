@@ -13,14 +13,15 @@ diff --git a/debian/ifupdown2.postinst b/debian/ifupdown2.postinst
 index 3689256..4b628e1 100644
 --- a/debian/ifupdown2.postinst
 +++ b/debian/ifupdown2.postinst
-@@ -85,6 +85,24 @@ postinst_remove_diverts()
+@@ -85,6 +85,25 @@ postinst_remove_diverts()
      _postinst_remove_diverts "/usr/share/man/man5/interfaces.5.gz"
  }
  
 +proxmox_compatibility()
 +{
 +    perl -e '
-+	use PVE::INotify;
++	my $haspve_common; eval { require PVE::INotify; $haspve_common = 1; };
++	exit if !$haspve_common;
 +	my $config = PVE::INotify::read_file('interfaces', 1);
 +	my $configdata = $config->{data};
 +
@@ -50,14 +51,15 @@ diff --git a/debian/ifupdown2.postrm b/debian/ifupdown2.postrm
 index 5d90b21..bab3dd0 100644
 --- a/debian/ifupdown2.postrm
 +++ b/debian/ifupdown2.postrm
-@@ -25,10 +25,29 @@ process_udev()
+@@ -25,10 +25,30 @@ process_udev()
      fi
  }
  
 +proxmox_compatibility()
 +{
 +    perl -e '
-+        use PVE::INotify;
++        my $haspve_common; eval { require PVE::INotify; $haspve_common = 1; };
++        exit if !$haspve_common;
 +        my $config = PVE::INotify::read_file('interfaces', 1);
 +        my $configdata = $config->{data};
 +
