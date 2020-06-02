@@ -9,4 +9,5 @@ pve/0004-don-t-remove-bridge-is-tap-veth-are-still-plugged.patch
 pve/0005-ifreload-down-up-vxlan-interfaces-when-ifreload_down.patch
 pve/0006-config-tuning.patch
 pve/0007-networking.service-fix-dependencies-and-ordering.patch
+pve/0008-openvswitch-ovs-ports-condone-regex-exclude-tap-veth.patch
 pve/0010-postinst-rm-update-network-config-compatibility.patch
