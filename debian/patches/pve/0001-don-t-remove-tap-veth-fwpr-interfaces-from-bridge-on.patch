@@ -1,43 +1,30 @@
-From 874ba884a7ff8f0059e069aac2855c2ffd5cacd2 Mon Sep 17 00:00:00 2001
+From e048d4f3c6516c4b7519112de13f79f70d56d44b Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
 Date: Wed, 16 May 2018 02:11:45 +0200
-Subject: [PATCH 1/7] don't remove (tap|veth|fwpr) interfaces from bridge on
- ifup bridge
+Subject: [PATCH] don't remove (tap|veth|fwpr) interfaces from bridge on ifup
+ bridge
 
 as proxmox don't defined them in /etc/network/interfaces
 
 Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
 Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
 ---
- debian/rules               | 2 +-
  ifupdown2/addons/bridge.py | 4 ++++
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ 1 file changed, 4 insertions(+)
 
-diff --git a/debian/rules b/debian/rules
-index 6274b3a..dfd460f 100755
---- a/debian/rules
-+++ b/debian/rules
-@@ -1,6 +1,6 @@
- #!/usr/bin/make -f
- 
--#export DH_VERBOSE=1
-+export DH_VERBOSE=1
- export PYBUILD_NAME=ifupdown2
- export PYBUILD_INSTALL_ARGS=--install-lib=/usr/share/ --install-scripts=/usr/share/
- 
 diff --git a/ifupdown2/addons/bridge.py b/ifupdown2/addons/bridge.py
-index 00b1eaa..35944ac 100644
+index d990b66..365e87d 100644
 --- a/ifupdown2/addons/bridge.py
 +++ b/ifupdown2/addons/bridge.py
-@@ -440,6 +440,7 @@ class bridge(Addon, moduleBase):
+@@ -439,6 +439,7 @@ class bridge(Addon, moduleBase):
              "bridge-ports-condone-regex": {
                      "help": "bridge ports to ignore/condone when reloading config / removing interfaces",
                      "required": False,
 +                    "default": "^(tap|veth|fwpr)",
                      "example": ["bridge-ports-condone-regex ^[a-zA-Z0-9]+_v[0-9]{1,4}$"]
              },
-         }
-@@ -1006,6 +1007,9 @@ class bridge(Addon, moduleBase):
+             "bridge-vlan-vni-map": {
+@@ -1013,6 +1014,9 @@ class bridge(Addon, moduleBase):
          # up a compiled regex to be used in a match later. This way we try to avoid
          # a race condition where an (possibly VM) interface is created after this
          # function has been called but before the bridgeports are validated.
