@@ -1,3 +1,9 @@
+ifupdown2 (3.0.0-1+pve1) pve; urgency=medium
+
+  * update to new 3.0.0 upstream release
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 03 Jun 2020 09:22:02 +0200
+
 ifupdown2 (2.0.1-1+pve10) pve; urgency=medium
 
   * avoid bringing network config in sync if pve-common isn't available
