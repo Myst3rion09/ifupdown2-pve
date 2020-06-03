@@ -1,7 +1,3 @@
-extra/0001-ovs-ovs-ports-condone-regex.patch
-extra/0002-nllistener-increase-buffer.patch
-extra/0003-ovs-multiple-ovsport.patch
-extra/0004-fix-start-networking-permission.patch
 pve/0001-don-t-remove-tap-veth-fwpr-interfaces-from-bridge-on.patch
 pve/0002-add-dummy-mtu-bridgevlanport-modules.patch
 pve/0003-allow-vlan-subinterface-in-a-vlan-aware-bridge.patch
