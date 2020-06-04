@@ -1,0 +1,32 @@
+From 54dbee161aa2fd281046386c10123222b790ebfc Mon Sep 17 00:00:00 2001
+From: Alexandre Derumier <aderumier@odiso.com>
+Date: Wed, 3 Jun 2020 13:06:14 +0200
+Subject: [PATCH] address: don't process_mtu if ovs-mtu is defined
+
+Openvswitch already manage mtu if ovs-mtu is defined.
+(Ovs manage mtu in userland, and sync mtu for some interfaces in kernel).
+
+Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
+---
+ ifupdown2/addons/address.py | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/ifupdown2/addons/address.py b/ifupdown2/addons/address.py
+index 6578ebb..9a20c9e 100644
+--- a/ifupdown2/addons/address.py
++++ b/ifupdown2/addons/address.py
+@@ -881,6 +881,11 @@ class address(Addon, moduleBase):
+ 
+     def process_mtu(self, ifaceobj, ifaceobj_getfunc):
+         mtu_str = ifaceobj.get_attr_value_first('mtu')
++
++        ovs_mtu = ifaceobj.get_attr_value_first('ovs-mtu')
++        if ovs_mtu:
++            return
++
+         mtu_from_policy = False
+ 
+         if not mtu_str:
+-- 
+2.20.1
+
