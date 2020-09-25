@@ -1,3 +1,13 @@
+ifupdown2 (3.0.0-1+pve3) UNRELEASED; urgency=medium
+
+  * allow vlan tag inside vxlan tunnel
+
+  * only rewrite config on first ifupdown2 installation
+
+  * update ifupdown2 submodule to current master
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 25 Sep 2020 09:17:21 +0200
+
 ifupdown2 (3.0.0-1+pve2) pve; urgency=medium
 
   * OVS already manages the MTU if 'ovs-mtu' is defined, mind that.
