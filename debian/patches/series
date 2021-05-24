@@ -8,3 +8,4 @@ pve/0007-networking.service-fix-dependencies-and-ordering.patch
 pve/0008-openvswitch-ovs-ports-condone-regex-exclude-tap-veth.patch
 pve/0009-allow-vlan-tag-inside-vxlan-tunnel.patch
 pve/0010-postinst-rm-update-network-config-compatibility.patch
+pve/0011-d-rules-drop-now-default-with-systemd.patch
