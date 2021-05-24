@@ -1,4 +1,10 @@
-ifupdown2 (3.0.0-1+pve3) UNRELEASED; urgency=medium
+ifupdown2 (3.0.0-1+pve4) bullseye; urgency=medium
+
+  * re-build for Proxmox VE 7 / Debian Bullseye
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 24 May 2021 12:38:32 +0200
+
+ifupdown2 (3.0.0-1+pve3) buster; urgency=medium
 
   * allow vlan tag inside vxlan tunnel
 
