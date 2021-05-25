@@ -1,3 +1,9 @@
+ifupdown2 (3.0.0-1+pve5) bullseye; urgency=medium
+
+  * fix shipping networking.service for updated debhelper compat level
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 25 May 2021 10:36:40 +0200
+
 ifupdown2 (3.0.0-1+pve4) bullseye; urgency=medium
 
   * re-build for Proxmox VE 7 / Debian Bullseye
