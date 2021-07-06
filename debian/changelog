@@ -1,3 +1,10 @@
+ifupdown2 (3.0.0-1+pve6) bullseye; urgency=medium
+
+  * always trigger a reload on first installation, to cope with ifupdown1
+    doing a networking stop on its way out.
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 06 Jul 2021 14:00:17 +0200
+
 ifupdown2 (3.0.0-1+pve5) bullseye; urgency=medium
 
   * fix shipping networking.service for updated debhelper compat level
