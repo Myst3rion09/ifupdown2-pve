@@ -1,0 +1,7 @@
+{
+    "bridge": {
+        "module_globals": {
+            "bridge_set_static_mac_from_port": "yes"
+        }
+    }
+}
