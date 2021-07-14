@@ -1,3 +1,12 @@
+ifupdown2 (3.1.0-1+pmx1) bullseye; urgency=medium
+
+  * update to 3.1.0 upstream release
+
+  * ship default policy to enable setting the MAC of a bridge to its first
+    port in a stable way.
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 14 Jul 2021 16:58:03 +0200
+
 ifupdown2 (3.0.0-1+pve6) bullseye; urgency=medium
 
   * always trigger a reload on first installation, to cope with ifupdown1
