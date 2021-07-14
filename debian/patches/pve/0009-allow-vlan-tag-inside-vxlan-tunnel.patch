@@ -1,4 +1,4 @@
-From a53022b71d98abf1cc34bf380309853fbb18b443 Mon Sep 17 00:00:00 2001
+From 14a29c0ef26946a4721103a943249d5c3e74a865 Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
 Date: Mon, 21 Sep 2020 08:47:25 +0200
 Subject: [PATCH] allow vlan tag inside vxlan tunnel
@@ -11,10 +11,10 @@ Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
  1 file changed, 5 deletions(-)
 
 diff --git a/ifupdown2/addons/bridge.py b/ifupdown2/addons/bridge.py
-index 2b9ea84..b835ac2 100644
+index f9c789d..72c7a2f 100644
 --- a/ifupdown2/addons/bridge.py
 +++ b/ifupdown2/addons/bridge.py
-@@ -1557,11 +1557,6 @@ class bridge(Addon, moduleBase):
+@@ -1602,11 +1602,6 @@ class bridge(Bridge, moduleBase):
              because kernel does honor vid info flags during deletes.
  
          """
@@ -24,8 +24,8 @@ index 2b9ea84..b835ac2 100644
 -                                                   bportifaceobj.upperifaces[0])
 -                return
  
-         vids_int =  self._ranges_to_ints(vids)
+         vids_int =  utils.ranges_to_ints(vids)
          try:
 -- 
-2.20.1
+2.30.2
 
