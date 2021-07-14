@@ -30,7 +30,7 @@ ${DEB}: ${BUILDDIR}
 
 .PHONY: upload
 upload: ${DEB}
-	tar cf - ${DEB} | ssh -X repoman@repo.proxmox.com -- upload --product pve --dist stretch
+	tar cf - ${DEB} | ssh -X repoman@repo.proxmox.com -- upload --product pve,pmg,pbs --dist bullseye
 
 .PHONY: distclean
 distclean: clean
