@@ -12,9 +12,11 @@ diff --git a/debian/ifupdown2.postinst b/debian/ifupdown2.postinst
 index b7de485..eaade7c 100644
 --- a/debian/ifupdown2.postinst
 +++ b/debian/ifupdown2.postinst
-@@ -113,6 +113,8 @@ case "$1" in
+@@ -113,7 +113,9 @@ case "$1" in
+         chmod +x /usr/share/ifupdown2/__main__.py
          postinst_remove_diverts
-         if [ -f "/tmp/.ifupdown2-first-install" ]; then
+-        if [ -f "/tmp/.ifupdown2-first-install" ]; then
++        if [ -f "/tmp/.ifupdown2-first-install" ] && [ ! -e /proxmox_install_mode ]; then
              proxmox_compatibility
 +            echo "Reloading network config on first install"
 +            ifreload -a
