@@ -1,3 +1,9 @@
+ifupdown2 (3.1.0-1+pmx2) bullseye; urgency=medium
+
+  * avoid re-generating and reloading network configuration in the installer
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 15 Jul 2021 10:35:31 +0200
+
 ifupdown2 (3.1.0-1+pmx1) bullseye; urgency=medium
 
   * update to 3.1.0 upstream release
