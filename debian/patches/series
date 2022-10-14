@@ -12,3 +12,4 @@ pve/0011-d-rules-drop-now-default-with-systemd.patch
 pve/0012-d-rules-add-dh_installsystemd-override-for-compat-12.patch
 pve/0013-postinst-reload-network-config-on-first-install.patch
 pve/0014-fix-pointopoint-regression.patch
+upstream/0001-ovs-add-support-for-fakebridge.patch

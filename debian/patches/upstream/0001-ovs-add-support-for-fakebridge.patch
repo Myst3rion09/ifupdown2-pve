@@ -1,0 +1,57 @@
+From 39b395b1fd41e5ac4066c5afd19b6ab9c17b8b14 Mon Sep 17 00:00:00 2001
+From: alexandre derumier <aderumier@odiso.com>
+Date: Thu, 1 Sep 2022 19:18:21 +0200
+Subject: [PATCH] addons: openvswitch : add support for fakebridge.
+
+Fake bridge are are ovsbridge child of a parent bridge with a specific vlan tag.
+
+```
+auto br-parent
+iface br-parent inet manual
+        ovs_type OVSBridge
+
+auto br-fakev10
+iface br-fakev10 inet manual
+        ovs_type OVSBridge
+        ovs_bridge br-parent
+        ovs_options br-parent 10
+
+```
+---
+ ifupdown2/addons/openvswitch.py | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/ifupdown2/addons/openvswitch.py b/ifupdown2/addons/openvswitch.py
+index 2c9a76f7..0a124ba2 100644
+--- a/ifupdown2/addons/openvswitch.py
++++ b/ifupdown2/addons/openvswitch.py
+@@ -74,6 +74,10 @@ class openvswitch(Addon, moduleBase):
+                     "required": False,
+                     "example": ["ovs-ports-condone-regex ^[a-zA-Z0-9]+_v[0-9]{1,4}$"]
+             },
++            'ovs-bridge': {
++                'help': 'Optional parent bridge for fake bridges',
++                'required': False,
++            },
+         }
+     }
+ 
+@@ -147,13 +151,17 @@ def _addbridge (self, ifaceobj):
+         ovsextra = ifaceobj.get_attr_value('ovs-extra')
+         ovsmtu = ifaceobj.get_attr_value_first ('ovs-mtu')
+         ovsportscondoneregex = self._get_ovs_port_condone_regex(ifaceobj)
++        ovsparent = ifaceobj.get_attr_value_first ('ovs-bridge')
+ 
+         cmd_list = []
+ 
+         cmd = "--may-exist add-br %s"%(iface)
++        if ovsparent is not None and ovsoptions:
++            cmd = cmd + " %s" %(ovsoptions)
++
+         cmd_list.append(cmd)
+ 
+-        if ovsoptions:
++        if ovsparent is None and ovsoptions:
+             cmd = "set bridge %s %s" %(iface, ovsoptions)
+             cmd_list.append(cmd)
+ 
