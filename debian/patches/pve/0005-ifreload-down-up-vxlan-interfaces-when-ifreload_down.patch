@@ -1,13 +1,16 @@
 From 2c38d0a157c8946f35a7da1c7c05484d33e6986f Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
 Date: Wed, 5 Jun 2019 14:47:05 +0200
-Subject: [PATCH 6/7] ifreload: down/up vxlan interfaces when
+Subject: [PATCH 6/7] ifreload: down/up vxlan && vlan interfaces when
  ifreload_down_changed=0
 
 almost all attributes of vxlan interfaces can't be updated
-in current kernel (<= 5.2). (including vxlan-id)
+(including vxlan-id).
 
-so when ifreload_down_changed=0, ifreload can't update vxlan.
+Same for vlan interfaces (vlan-protocol, vlan-id)
+
+so when ifreload_down_changed=0, ifreload can't update vxlan or vlan
+ attributes.
 
 fix: https://github.com/CumulusNetworks/ifupdown2/issues/50
 Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
@@ -25,7 +28,7 @@ index b4e1864..9313573 100644
                                          ifaceLinkKind.to_str(lastifaceobjlist[0].link_kind)))
                      ifacedownlist.append(newifaceobjlist[objidx].name)
 -                if not down_changed:
-+                if not down_changed and ifaceLinkKind.to_str(lastifaceobjlist[0].link_kind) != 'vxlan':
++                if not down_changed and ifaceLinkKind.to_str(lastifaceobjlist[0].link_kind) != 'vxlan' and ifaceLinkKind.to_str(lastifaceobjlist[0].link_kind) != 'vlan':
                      continue
                  if len(newifaceobjlist) != len(lastifaceobjlist):
                      ifacedownlist.append(ifname)
