@@ -1,3 +1,17 @@
+ifupdown2 (3.2.0-1+pmx1) bookworm; urgency=medium
+
+  * update to 3.2.0 upstream release
+
+  * build for Debian 12 Bookworm based releases
+
+  * remove old upstreamed patches
+
+  * add ipv6 slaac support (inet6 auto / accept_ra)
+
+  * remove lacp bond min-links=0 warning
+
+ -- Proxmox Support Team <support@proxmox.com>  Sat, 20 May 2023 11:05:14 +0200
+
 ifupdown2 (3.2.0) unstable; urgency=medium
 
   * Fix: Sonarqube issues
