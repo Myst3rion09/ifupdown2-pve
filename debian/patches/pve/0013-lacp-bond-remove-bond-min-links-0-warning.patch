@@ -1,0 +1,33 @@
+From df1e76e6bcdca3044ee9d53ddb62a71bedf4b8a6 Mon Sep 17 00:00:00 2001
+From: Alexandre Derumier <aderumier@odiso.com>
+Date: Tue, 16 May 2023 00:33:36 +0200
+Subject: [PATCH] lacp bond: remove bond-min-links=0 warning
+
+This is only cumulus specific
+
+Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
+---
+ ifupdown2/addons/bond.py | 7 -------
+ 1 file changed, 7 deletions(-)
+
+diff --git a/ifupdown2/addons/bond.py b/ifupdown2/addons/bond.py
+index 74d2cab..4a555cc 100644
+--- a/ifupdown2/addons/bond.py
++++ b/ifupdown2/addons/bond.py
+@@ -610,13 +610,6 @@ class bond(Addon, moduleBase):
+             # if we need to reset the mode to system default
+             ifla_info_data[Link.IFLA_BOND_MODE] = ifla_bond_mode
+ 
+-        if ifla_bond_mode == 4:  # 802.3ad
+-            min_links = ifla_info_data.get(Link.IFLA_BOND_MIN_LINKS)
+-            if min_links is None:
+-                min_links = self.cache.get_link_info_data_attribute(ifname, Link.IFLA_BOND_MIN_LINKS)
+-            # get_min_links_nl may return None so we need to strictly check 0
+-            if min_links == 0:
+-                self.logger.warning('%s: attribute bond-min-links is set to \'0\'' % ifname)
+         else:
+             # IFLA_BOND_AD_LACP_RATE and IFLA_BOND_AD_LACP_BYPASS only for 802.3ad mode (4)
+             for nl_attr, attr_name in self._bond_lacp_attrs:
+-- 
+2.30.2
+
