@@ -1,15 +1,16 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From fb44a9192381498ec4f0fbf89c717d07c8fb5dc2 Mon Sep 17 00:00:00 2001
 From: Thomas Lamprecht <t.lamprecht@proxmox.com>
 Date: Mon, 24 May 2021 12:32:46 +0200
-Subject: [PATCH] d/rules: drop now default "with=systemd"
+Subject: [PATCH 10/12] d/rules: drop now default "with=systemd"
 
 Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
+Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
 ---
  debian/rules | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/debian/rules b/debian/rules
-index ea6f434..dfd25f7 100755
+index fcb304f..ec1b214 100755
 --- a/debian/rules
 +++ b/debian/rules
 @@ -5,7 +5,7 @@ export PYBUILD_NAME=ifupdown2
@@ -21,3 +22,6 @@ index ea6f434..dfd25f7 100755
  
  override_dh_installman:
  	./ifupdown2/man/genmanpages.sh ./ifupdown2/man ./man
+-- 
+2.30.2
+

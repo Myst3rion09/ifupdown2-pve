@@ -1,7 +1,7 @@
-From 902cfb815abd85b9813f73c2bb0a5ea0fe70c03c Mon Sep 17 00:00:00 2001
+From 3d974bdaed34ce3d05cdbcef271021a80d0ae881 Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
 Date: Mon, 31 Dec 2018 10:49:48 +0100
-Subject: [PATCH] config tuning
+Subject: [PATCH 05/12] config tuning
 
 multiple_vlan_aware_bridge_support=1
 
@@ -12,10 +12,10 @@ Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/etc/network/ifupdown2/ifupdown2.conf b/etc/network/ifupdown2/ifupdown2.conf
-index ecdd94f..c974077 100644
+index bc1acb9..4939186 100644
 --- a/etc/network/ifupdown2/ifupdown2.conf
 +++ b/etc/network/ifupdown2/ifupdown2.conf
-@@ -45,7 +45,7 @@ addon_python_modules_support=1
+@@ -53,7 +53,7 @@ addon_python_modules_support=1
  # By default ifupdown2 only supports a single vlan filtering bridge
  # on the system. Set this flag to 1 to support multiple vlan
  # filtering bridges
@@ -24,12 +24,12 @@ index ecdd94f..c974077 100644
  
  # ifquery check status strings.
  # By default `ifquery --check` prints the check and
-@@ -88,4 +88,4 @@ adjust_logical_dev_mtu=1
+@@ -96,4 +96,4 @@ adjust_logical_dev_mtu=1
  # if this directory doesn't exists ifupdown2 will create it
  # if directory creation fails or state_dir variable is empty
  # state_dir will default to /var/tmp/network/
 -state_dir=/var/tmp/network/
 +state_dir=/run/network/
 -- 
-2.20.1
+2.30.2
 

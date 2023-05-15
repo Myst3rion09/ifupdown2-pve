@@ -1,7 +1,7 @@
-From a8368f92c36cd810933c3c5319c148976cc65a82 Mon Sep 17 00:00:00 2001
+From 1cead3cbb02f7058846a6f7b7a42d875b27ee64a Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
 Date: Fri, 15 Jun 2018 00:36:03 +0200
-Subject: [PATCH 2/7] add dummy mtu, bridgevlanport modules
+Subject: [PATCH 02/12] add dummy mtu, bridgevlanport modules
 
 As pve-manager package still provide ifupdown custom bridgevlanport && mtu script,
 we can override them with ifupdown2 addon scripts, doing nothing.
@@ -10,6 +10,7 @@ we can override them with ifupdown2 addon scripts, doing nothing.
  exist with same name)
 
 Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
+Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
 ---
  etc/network/ifupdown2/addons.conf  |  2 ++
  ifupdown2/addons/bridgevlanport.py | 17 +++++++++++++++++
@@ -19,10 +20,10 @@ Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
  create mode 100644 ifupdown2/addons/mtu.py
 
 diff --git a/etc/network/ifupdown2/addons.conf b/etc/network/ifupdown2/addons.conf
-index c43d377..e3639a7 100644
+index 726d63a..a8f2317 100644
 --- a/etc/network/ifupdown2/addons.conf
 +++ b/etc/network/ifupdown2/addons.conf
-@@ -19,6 +19,8 @@ up,dhcp
+@@ -20,6 +20,8 @@ up,dhcp
  up,address
  up,addressvirtual
  up,usercmds
@@ -78,5 +79,5 @@ index 0000000..efdf569
 +
 +    _modinfo = {'mhelp' : 'dummy package to override proxmox script'}
 -- 
-2.20.1
+2.30.2
 

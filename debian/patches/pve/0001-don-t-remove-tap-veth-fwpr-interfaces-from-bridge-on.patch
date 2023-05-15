@@ -1,8 +1,8 @@
-From e048d4f3c6516c4b7519112de13f79f70d56d44b Mon Sep 17 00:00:00 2001
+From 76e402e8b446861adf45f8ece54d616808586b71 Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
 Date: Wed, 16 May 2018 02:11:45 +0200
-Subject: [PATCH] don't remove (tap|veth|fwpr) interfaces from bridge on ifup
- bridge
+Subject: [PATCH 01/12] don't remove (tap|veth|fwpr) interfaces from bridge on
+ ifup bridge
 
 as proxmox don't defined them in /etc/network/interfaces
 
@@ -13,10 +13,10 @@ Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
  1 file changed, 4 insertions(+)
 
 diff --git a/ifupdown2/addons/bridge.py b/ifupdown2/addons/bridge.py
-index d990b66..365e87d 100644
+index 954e462..ff98b18 100644
 --- a/ifupdown2/addons/bridge.py
 +++ b/ifupdown2/addons/bridge.py
-@@ -439,6 +439,7 @@ class bridge(Addon, moduleBase):
+@@ -443,6 +443,7 @@ class bridge(Bridge, moduleBase):
              "bridge-ports-condone-regex": {
                      "help": "bridge ports to ignore/condone when reloading config / removing interfaces",
                      "required": False,
@@ -24,7 +24,7 @@ index d990b66..365e87d 100644
                      "example": ["bridge-ports-condone-regex ^[a-zA-Z0-9]+_v[0-9]{1,4}$"]
              },
              "bridge-vlan-vni-map": {
-@@ -1013,6 +1014,9 @@ class bridge(Addon, moduleBase):
+@@ -1152,6 +1153,9 @@ class bridge(Bridge, moduleBase):
          # up a compiled regex to be used in a match later. This way we try to avoid
          # a race condition where an (possibly VM) interface is created after this
          # function has been called but before the bridgeports are validated.
@@ -35,5 +35,5 @@ index d990b66..365e87d 100644
              if get_string:
                  return bridge_port_condone_regex
 -- 
-2.20.1
+2.30.2
 

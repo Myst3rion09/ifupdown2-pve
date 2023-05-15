@@ -1,18 +1,20 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From 9f8dfcaf862738b7439d5b0cb0d76dc24c3b50bc Mon Sep 17 00:00:00 2001
 From: Dominik Csapak <d.csapak@proxmox.com>
 Date: Tue, 6 Jul 2021 13:11:24 +0200
-Subject: [PATCH] postinst: reload network config on first install
+Subject: [PATCH 12/12] postinst: reload network config on first install
 
 Signed-off-by: Dominik Csapak <d.csapak@proxmox.com>
+Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
 ---
- debian/ifupdown2.postinst | 2 ++
- 1 file changed, 2 insertions(+)
+ debian/ifupdown2.postinst | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/debian/ifupdown2.postinst b/debian/ifupdown2.postinst
-index b7de485..eaade7c 100644
+index b7de485..0137ea8 100644
 --- a/debian/ifupdown2.postinst
 +++ b/debian/ifupdown2.postinst
-@@ -113,7 +113,9 @@ case "$1" in
+@@ -111,8 +111,10 @@ case "$1" in
+         process_udev
          chmod +x /usr/share/ifupdown2/__main__.py
          postinst_remove_diverts
 -        if [ -f "/tmp/.ifupdown2-first-install" ]; then

@@ -1,24 +1,26 @@
-From 14a29c0ef26946a4721103a943249d5c3e74a865 Mon Sep 17 00:00:00 2001
+From 779d3700fb583b87b03ad2b12d55442058e7d79b Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
 Date: Mon, 21 Sep 2020 08:47:25 +0200
-Subject: [PATCH] allow vlan tag inside vxlan tunnel
+Subject: [PATCH 08/12] allow vlan tag inside vxlan tunnel
 
 Cumulus forbid it, but it's totally valid.
 
 Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
 ---
- ifupdown2/addons/bridge.py | 5 -----
- 1 file changed, 5 deletions(-)
+ ifupdown2/addons/bridge.py | 7 -------
+ 1 file changed, 7 deletions(-)
 
 diff --git a/ifupdown2/addons/bridge.py b/ifupdown2/addons/bridge.py
-index f9c789d..72c7a2f 100644
+index ff98b18..f21424e 100644
 --- a/ifupdown2/addons/bridge.py
 +++ b/ifupdown2/addons/bridge.py
-@@ -1602,11 +1602,6 @@ class bridge(Bridge, moduleBase):
+@@ -1718,13 +1718,6 @@ class bridge(Bridge, moduleBase):
              because kernel does honor vid info flags during deletes.
  
          """
 -        if not isbridge and (bportifaceobj.link_kind & ifaceLinkKind.VXLAN and not bportifaceobj.link_privflags & ifaceLinkPrivFlags.SINGLE_VXLAN):
+-            self.config_check_bridge_vni_svi_limit(bportifaceobj, ifaceobj_getfunc, pvid)
+-
 -            if not vids or not pvid or len(vids) > 1 or vids[0] != pvid:
 -                self._error_vxlan_in_vlan_aware_br(bportifaceobj,
 -                                                   bportifaceobj.upperifaces[0])

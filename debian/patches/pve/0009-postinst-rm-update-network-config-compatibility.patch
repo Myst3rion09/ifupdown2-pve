@@ -1,7 +1,7 @@
-From 723bfd8e3ed7a6140a411260a4881ed886efc829 Mon Sep 17 00:00:00 2001
+From 2fe84449da923d01de8bbed84f4f8ce15548225f Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
 Date: Fri, 21 Feb 2020 10:01:59 +0100
-Subject: [PATCH] postinst/rm : update network config compatibility
+Subject: [PATCH 09/12] postinst/rm : update network config compatibility
 
 Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
 ---
@@ -12,7 +12,7 @@ Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
  create mode 100644 debian/ifupdown2.preinst
 
 diff --git a/debian/ifupdown2.postinst b/debian/ifupdown2.postinst
-index 3689256..5162109 100644
+index 3689256..b7de485 100644
 --- a/debian/ifupdown2.postinst
 +++ b/debian/ifupdown2.postinst
 @@ -85,6 +85,25 @@ postinst_remove_diverts()
@@ -114,5 +114,5 @@ index 0000000..aa8653e
 +
 +exit 0
 -- 
-2.20.1
+2.30.2
 

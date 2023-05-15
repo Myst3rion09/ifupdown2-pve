@@ -1,7 +1,8 @@
-From cfe5feada5532830a53031138c471541ebec813d Mon Sep 17 00:00:00 2001
+From 014e11b7f0eaeb901ada42eaf7a0cc257d85885c Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
 Date: Sun, 17 May 2020 15:46:36 +0200
-Subject: [PATCH] openvswitch : ovs-ports-condone-regex : exclude tap|veth|fwln
+Subject: [PATCH 07/12] openvswitch : ovs-ports-condone-regex : exclude
+ tap|veth|fwln
 
 Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
 ---
@@ -9,10 +10,10 @@ Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
  1 file changed, 3 insertions(+)
 
 diff --git a/ifupdown2/addons/openvswitch.py b/ifupdown2/addons/openvswitch.py
-index 468d7df..48beef3 100644
+index 0a124ba..40fc36a 100644
 --- a/ifupdown2/addons/openvswitch.py
 +++ b/ifupdown2/addons/openvswitch.py
-@@ -65,6 +65,7 @@ class openvswitch(Addon, moduleBase):
+@@ -71,6 +71,7 @@ class openvswitch(Addon, moduleBase):
              },
              'ovs-ports-condone-regex': {
                      "help": "ovs ports to ignore/condone when reloading config / removing interfaces",
@@ -20,7 +21,7 @@ index 468d7df..48beef3 100644
                      "required": False,
                      "example": ["ovs-ports-condone-regex ^[a-zA-Z0-9]+_v[0-9]{1,4}$"]
              },
-@@ -101,6 +102,8 @@ class openvswitch(Addon, moduleBase):
+@@ -116,6 +117,8 @@ class openvswitch(Addon, moduleBase):
  
      def _get_ovs_port_condone_regex(self, ifaceobj, get_string = False):
          ovs_port_condone_regex = ifaceobj.get_attr_value_first('ovs-ports-condone-regex')
@@ -30,5 +31,5 @@ index 468d7df..48beef3 100644
              if get_string:
                  return ovs_port_condone_regex
 -- 
-2.20.1
+2.30.2
 

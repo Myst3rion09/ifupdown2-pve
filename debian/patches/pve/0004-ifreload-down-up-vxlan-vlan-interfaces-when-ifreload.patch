@@ -1,7 +1,7 @@
 From 1926699b02882bc5ed659d4debce2a0127d2edf0 Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
 Date: Wed, 5 Jun 2019 14:47:05 +0200
-Subject: [PATCH 6/7] ifreload: down/up vxlan && vlan interfaces when
+Subject: [PATCH 04/12] ifreload: down/up vxlan && vlan interfaces when
  ifreload_down_changed=0
 
 almost all attributes of vxlan interfaces can't be updated
