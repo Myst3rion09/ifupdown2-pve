@@ -1,4 +1,4 @@
-From 2c38d0a157c8946f35a7da1c7c05484d33e6986f Mon Sep 17 00:00:00 2001
+From 1926699b02882bc5ed659d4debce2a0127d2edf0 Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
 Date: Wed, 5 Jun 2019 14:47:05 +0200
 Subject: [PATCH 6/7] ifreload: down/up vxlan && vlan interfaces when
@@ -16,22 +16,24 @@ fix: https://github.com/CumulusNetworks/ifupdown2/issues/50
 Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
 Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
 ---
- ifupdown2/ifupdown/ifupdownmain.py | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ ifupdown2/ifupdown/ifupdownmain.py | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/ifupdown2/ifupdown/ifupdownmain.py b/ifupdown2/ifupdown/ifupdownmain.py
-index b4e1864..9313573 100644
+index b73c742..65fd67e 100644
 --- a/ifupdown2/ifupdown/ifupdownmain.py
 +++ b/ifupdown2/ifupdown/ifupdownmain.py
-@@ -2274,7 +2274,7 @@ class ifupdownMain:
+@@ -2355,7 +2355,9 @@ class ifupdownMain:
                                       % (newifaceobjlist[objidx].name,
                                          ifaceLinkKind.to_str(lastifaceobjlist[0].link_kind)))
                      ifacedownlist.append(newifaceobjlist[objidx].name)
 -                if not down_changed:
-+                if not down_changed and ifaceLinkKind.to_str(lastifaceobjlist[0].link_kind) != 'vxlan' and ifaceLinkKind.to_str(lastifaceobjlist[0].link_kind) != 'vlan':
++
++                ifacelink_kind = ifaceLinkKind.to_str(lastifaceobjlist[0].link_kind)
++                if not down_changed and ifacelink_kind != 'vxlan' and ifacelink_kind != 'vlan':
                      continue
                  if len(newifaceobjlist) != len(lastifaceobjlist):
                      ifacedownlist.append(ifname)
 -- 
-2.20.1
+2.30.2
 
