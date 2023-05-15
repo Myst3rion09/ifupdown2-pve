@@ -10,4 +10,4 @@ pve/0009-postinst-rm-update-network-config-compatibility.patch
 pve/0010-d-rules-drop-now-default-with-systemd.patch
 pve/0011-d-rules-add-dh_installsystemd-override-for-compat-12.patch
 pve/0012-postinst-reload-network-config-on-first-install.patch
-
+upstream/0001-add-ipv6-slaac-support-inet6-auto-accept_ra.patch
