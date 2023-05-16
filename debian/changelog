@@ -1,3 +1,14 @@
+ifupdown2 (3.1.0-1+pmx4) bullseye; urgency=medium
+
+  * add ovs support for fakebridge
+
+  * vlan: fix vlan-protocol query check
+
+  * Avoid updating VLAN attributes (vlan-protocol, vlan-id) on reload, if it's
+    not a full ifdown + ifup cycle.
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 16 May 2023 12:01:14 +0200
+
 ifupdown2 (3.1.0-1+pmx3) bullseye; urgency=medium
 
   * fix a point-to-point regression introduced in 3.1
