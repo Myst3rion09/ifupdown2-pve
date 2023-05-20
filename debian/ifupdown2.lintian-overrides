@@ -1,1 +1,4 @@
 ifupdown2: systemd-service-file-refers-to-unusual-wantedby-target
+ifupdown2: possibly-insecure-handling-of-tmp-files-in-maintainer-script /tmp [postinst:114]
+ifupdown2: possibly-insecure-handling-of-tmp-files-in-maintainer-script /tmp [postinst:118]
+ifupdown2: possibly-insecure-handling-of-tmp-files-in-maintainer-script /tmp [preinst:6]

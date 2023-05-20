@@ -1,7 +1,7 @@
 Source: ifupdown2
 Section: admin
 Priority: optional
-Maintainer: Julien Fortin <jfortin@nvidia.com>
+Maintainer: Proxmox Support Team <support@proxmox.com>
 Build-Depends: debhelper-compat (= 13),
                dh-python,
                python3,
