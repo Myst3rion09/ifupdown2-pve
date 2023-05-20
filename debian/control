@@ -1,14 +1,14 @@
 Source: ifupdown2
 Section: admin
 Priority: optional
-Maintainer: Proxmox Support Team <support@proxmox.com>
-Build-Depends: debhelper (>=12),
+Maintainer: Julien Fortin <jfortin@nvidia.com>
+Build-Depends: debhelper (>= 9.20160709),
                dh-python,
                python3,
                python3-all,
                python3-setuptools,
                python3-docutils
-Standards-Version: 4.5.1
+Standards-Version: 4.5.0.2
 Homepage: https://github.com/cumulusnetworks/ifupdown2
 X-Python-Version: >= 3.7
 
@@ -17,8 +17,7 @@ Architecture: all
 Provides: ifupdown
 Conflicts: ifupdown
 Replaces: ifupdown
-Breaks: libpve-common-perl (<< 6.0-14)
-Depends: ${python3:Depends}, ${misc:Depends}, iproute2
+Depends: ${python3:Depends}, ${misc:Depends}, iproute2, python3-six, python3-setuptools, python3-systemd
 Suggests: isc-dhcp-client, bridge-utils, ethtool, python3-gvgen, python3-mako
 Description: Network Interface Management tool similar to ifupdown
  ifupdown2 is ifupdown re-written in Python. It replaces ifupdown and provides
