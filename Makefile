@@ -38,6 +38,9 @@ dsc: $(DSC)
 $(DSC): $(BUILDDIR) $(ORIG_SRC_TAR)
 	cd $(BUILDDIR); dpkg-buildpackage -S -uc -us -d
 
+sbuild: $(DSC)
+	sbuild $(DSC)
+
 .PHONY: upload
 upload: $(DEB)
 	tar cf - $(DEB) | ssh -X repoman@repo.proxmox.com -- upload --product pve,pmg,pbs --dist bullseye
