@@ -17,52 +17,85 @@ ifupdown2 (3.2.0) unstable; urgency=medium
 
  -- Julien Fortin <jfortin@nvidia.com>  Thu, 04 May 2023 23:42:00 -0700
 
+ifupdown2 (3.1.0-1+pmx4) bullseye; urgency=medium
+
+  * add ovs support for fakebridge
+
+  * vlan: fix vlan-protocol query check
+
+  * Avoid updating VLAN attributes (vlan-protocol, vlan-id) on reload, if it's
+    not a full ifdown + ifup cycle.
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 16 May 2023 12:01:14 +0200
+
+ifupdown2 (3.1.0-1+pmx3) bullseye; urgency=medium
+
+  * fix a point-to-point regression introduced in 3.1
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 26 Jul 2021 12:29:08 +0200
+
+ifupdown2 (3.1.0-1+pmx2) bullseye; urgency=medium
+
+  * avoid re-generating and reloading network configuration in the installer
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 15 Jul 2021 10:35:31 +0200
+
+ifupdown2 (3.1.0-1+pmx1) bullseye; urgency=medium
+
+  * update to 3.1.0 upstream release
+
+  * ship default policy to enable setting the MAC of a bridge to its first
+    port in a stable way.
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 14 Jul 2021 16:58:03 +0200
+
+
 ifupdown2 (3.1.0-1) unstable; urgency=medium
 
    * New: ifquery-check now validates admin state
    * New: bond: bond mac should always be inherited from it's first slave
 
    * New: macvlan/addressvirtual features:
-	- check interface name lenght and warn if len > 15
-	- sync macvlan forwarding state with lower-device
+     - check interface name lenght and warn if len > 15
+     - sync macvlan forwarding state with lower-device
 
    * New: vxlan features:
-	- Single vxlan device support (bridge-vlan-vni-map)
-	New attributes:
-	- vxlan-mcastgrp-map (vxlan multicast group for single-vxlan device)
-	- vxlan-vnifilter (vxlan vni filter for single-vxlan device)
-	- vxlan-remoteip-map (static HREP entries for static single vxlan dev)
-	- vxlan-tos (ToS value)
-	- vxlan-udp-csum (whether to perform checksumming or not)
-	New policy:
-	- vxlan-support-mix-dev-types: allow mix of traditional and single
-	vxlan device (default to yes)
+     - Single vxlan device support (bridge-vlan-vni-map)
+     - New attributes:
+       - vxlan-mcastgrp-map (vxlan multicast group for single-vxlan device)
+       - vxlan-vnifilter (vxlan vni filter for single-vxlan device)
+       - vxlan-remoteip-map (static HREP entries for static single vxlan dev)
+       - vxlan-tos (ToS value)
+       - vxlan-udp-csum (whether to perform checksumming or not)
+     - New policy:
+       - vxlan-support-mix-dev-types: allow mix of traditional and single
+    vxlan device (default to yes)
 
    * New: bridge features:
-	- add multi bridge support for bridge_set_static_mac_from_port=yes
-	- check if bridge mac is already inherited from a port
-	- detect VXLAN mis-config VNI "bridge-learning=on" and warn
-	- detect and warn when arp suppression is enabled but no vlan config
-	- bridge-arp-nd-suppress with ifquery --with-default if policy is set
-	- enable ipv6 on SVD brport
-	- enable forwarding on dhcp bridges (fixes: #179)
-	New attribute:
-	- bridge-vlan-vni-map (single vxlan device support)
-	New policy:
-	- bridge_always_up_dummy_brport
+     - add multi bridge support for bridge_set_static_mac_from_port=yes
+     - check if bridge mac is already inherited from a port
+     - detect VXLAN mis-config VNI "bridge-learning=on" and warn
+     - detect and warn when arp suppression is enabled but no vlan config
+     - bridge-arp-nd-suppress with ifquery --with-default if policy is set
+     - enable ipv6 on SVD brport
+     - enable forwarding on dhcp bridges (fixes: #179)
+     - New attribute:
+       - bridge-vlan-vni-map (single vxlan device support)
+     - New policy:
+       - bridge_always_up_dummy_brport
 
    * New: address features:
-	- warn user if L3-SVI is configured with "ip-forward off"
-	- enable ipv6 before adding new address
-	New policies:
-	- check_l3_svi_ip_forwarding (check ip forward on l3 svi, default off)
-	- ip_blacklist: blacklist specific ip addresses
+     - warn user if L3-SVI is configured with "ip-forward off"
+     - enable ipv6 before adding new address
+     - New policies:
+       - check_l3_svi_ip_forwarding (check ip forward on l3 svi, default off)
+       - ip_blacklist: blacklist specific ip addresses
 
    * New: vlan features:
-	- check vlan-id misconfiguration and print warning
-	New attribute:
-	- vlan-bridge-binding (if enabled link state is no longer automatically
-	transferred from the lower device)
+     - check vlan-id misconfiguration and print warning
+     - New attribute:
+       - vlan-bridge-binding (if enabled link state is no longer automatically
+       transferred from the lower device)
 
     * Fix: address: remove stale fdb entry for svi (when hwaddress is used)
     * Fix: usercmds: Set environment just like the original ifupdown
@@ -70,6 +103,47 @@ ifupdown2 (3.1.0-1) unstable; urgency=medium
     * Fix: batman_adv: fix unresolved reference
 
  -- Julien Fortin <jfortin@nvidia.com>  Mon, 05 Jul 2021 23:42:42 +0200
+
+ifupdown2 (3.0.0-1+pve6) bullseye; urgency=medium
+
+  * always trigger a reload on first installation, to cope with ifupdown1
+    doing a networking stop on its way out.
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 06 Jul 2021 14:00:17 +0200
+
+ifupdown2 (3.0.0-1+pve5) bullseye; urgency=medium
+
+  * fix shipping networking.service for updated debhelper compat level
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 25 May 2021 10:36:40 +0200
+
+ifupdown2 (3.0.0-1+pve4) bullseye; urgency=medium
+
+  * re-build for Proxmox VE 7 / Debian Bullseye
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 24 May 2021 12:38:32 +0200
+
+ifupdown2 (3.0.0-1+pve3) buster; urgency=medium
+
+  * allow vlan tag inside vxlan tunnel
+
+  * only rewrite config on first ifupdown2 installation
+
+  * update ifupdown2 submodule to current master
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 25 Sep 2020 09:17:21 +0200
+
+ifupdown2 (3.0.0-1+pve2) pve; urgency=medium
+
+  * OVS already manages the MTU if 'ovs-mtu' is defined, mind that.
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 05 Jun 2020 08:31:14 +0200
+
+ifupdown2 (3.0.0-1+pve1) pve; urgency=medium
+
+  * update to new 3.0.0 upstream release
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 03 Jun 2020 09:22:02 +0200
 
 ifupdown2 (3.0.0-1) unstable; urgency=medium
 
@@ -111,6 +185,64 @@ ifupdown2 (2.0.2-1) unstable; urgency=medium
 
  -- Julien Fortin <julien@cumulusnetworks.com>  Wed, 04 Mar 2020 23:42:42 +0100
 
+ifupdown2 (2.0.1-1+pve10) pve; urgency=medium
+
+  * avoid bringing network config in sync if pve-common isn't available
+
+  * openvswitch: do not remove tap|veth interfaces when adding an internal ovs
+    port
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 19 May 2020 22:11:49 +0200
+
+ifupdown2 (2.0.1-1+pve8) pve; urgency=medium
+
+  * drop now outdated allow=ovs systemd service ExecStart/Stop adaption
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 16 Mar 2020 06:33:45 +0100
+
+ifupdown2 (2.0.1-1+pve7) pve; urgency=medium
+
+  * fupdown2-pre.service: fix udevadm path for non usr-merged systems
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 10 Mar 2020 08:09:53 +0100
+
+ifupdown2 (2.0.1-1+pve6) pve; urgency=medium
+
+  * add openvswitch addon
+
+  * add patch to ifup/ifdown allow=ovs on start/stop
+
+  * add ifupdown2-pre.service service to be sure that networking devices are
+    correctly setup before networking service is started
+
+  * do not change interface forwarding value if not defined
+
+  * read/write the network configuration on upgrade and removal of the
+    ifupdown2 package, writing eventual changes to the pending 'interfaces.new'
+    changes file. This ensures compatibility adapations for a respective
+    ifupdwon2 or ifupdown1 version are enforced.
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 09 Mar 2020 13:25:58 +0100
+
+ifupdown2 (2.0.1-1+pve4) pve; urgency=medium
+
+  * execute addon scripts before module to ensure OVS interfaces are available
+    at the time they're now being configured...
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 03 Feb 2020 10:53:43 +0100
+
+ifupdown2 (2.0.1-1+pve3) pve; urgency=medium
+
+  * fix ordering and dependencies of networking.service
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 30 Jan 2020 12:51:45 +0100
+
+ifupdown2 (2.0.1-1+pve2) pve; urgency=medium
+
+  * Update to 2.0.1-1
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 13 Jan 2020 09:14:22 +0100
+
 ifupdown2 (2.0.1-1) unstable; urgency=medium
 
   * New argv option: --nldebug to print netlink debug message
@@ -137,6 +269,34 @@ ifupdown2 (2.0.0-1) unstable; urgency=medium
                vxlan_bridge_igmp_snooping_enable_port_mcrouter (1/0)
 
  -- Julien Fortin <julien@cumulusnetworks.com>  Tue, 01 Oct 2019 23:42:42 +0200
+
+ifupdown2 (1.2.8-1+pve4) pve; urgency=medium
+
+  * add arp-accept option required for bgp-evpn
+
+  * config: keep addon_syntax_check off to allow openvswitch syntax
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 26 Nov 2019 14:29:11 +0100
+
+ifupdown2 (1.2.8-1+pve3) pve; urgency=medium
+
+  * re-add config tuning patch to allow multiple VLAN aware bridges and
+    allow `ovs_*` options to co-exist
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 30 Aug 2019 06:58:55 +0200
+
+ifupdown2 (1.2.8-1+pve2) pve; urgency=medium
+
+  * restore the behavior to not remove (tap|veth|fwpr) interfaces from bridges
+    on ifup
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 28 Aug 2019 16:43:11 +0200
+
+ifupdown2 (1.2.8-1+pve1) pve; urgency=medium
+
+  * update to upstream 1.2.8-1 release
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 28 Aug 2019 11:06:45 +0200
 
 ifupdown2 (1.2.8-1) unstable; urgency=medium
 
@@ -166,6 +326,21 @@ ifupdown2 (1.2.6-1) unstable; urgency=medium
 
  -- Julien Fortin <julien@cumulusnetworks.com>  Sun, 23 Jun 2019 23:42:42 -1000
 
+ifupdown2 (1.2.5-2+pve1) pve; urgency=medium
+
+  * don't remove bridge if tap|veth|fw are connected
+  * ifup/ifdown vxlan interface on reload
+  * update to current upstream master
+  * add uplink-id option
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 18 Jun 2019 10:22:34 +0200
+
+ifupdown2 (1.2.5-1+pvetest1) unstable; urgency=medium
+
+  * Update to 1.2.5-1
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 16 Apr 2019 10:00:00 +0200
+
 ifupdown2 (1.2.5-1) unstable; urgency=medium
 
   * Fix: ifupdown2 scripts: log warning on EACCES exception (Fixes #89)
@@ -187,6 +362,12 @@ ifupdown2 (1.2.3-1) unstable; urgency=medium
   * Fix: log: use stderr if syslog initialization fails (closes: #917534)
 
  -- Julien Fortin <julien@cumulusnetworks.com>  Sun, 30 Dec 2018 23:42:42 +0700
+
+ifupdown2 (1.2.2-1+pvetest1) unstable; urgency=medium
+
+  * Update to 1.2.2
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 31 Dec 2018 09:00:00 +0200
 
 ifupdown2 (1.2.2-1) unstable; urgency=medium
 
@@ -219,6 +400,30 @@ ifupdown2 (1.2.1) UNRELEASED; urgency=medium
          an interface
 
  -- Julien Fortin <julien@cumulusnetworks.com>  Wed, 24 Oct 2018 23:42:42 +0200
+
+ifupdown2 (1.2.0-1+pvetest1) unstable; urgency=medium
+
+  * Update to 1.2.0 tag with some fixups from master-next
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 03 Jul 2018 10:47:42 +0200
+
+ifupdown2 (1.2.0-1~pvetest3) unstable; urgency=medium
+
+  * allow specifying addresses on vlan aware bridges
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 18 Jun 2018 10:05:00 +0200
+
+ifupdown2 (1.2.0-1~pvetest2) unstable; urgency=medium
+
+  * readd patch for vxlan/anycast support
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 18 Jun 2018 09:56:51 +0200
+
+ifupdown2 (1.2.0-1~pvetest1) unstable; urgency=medium
+
+  * Initial 1.2.0 package
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 15 Jun 2018 09:14:59 +0200
 
 ifupdown2 (1.2.0) UNRELEASED; urgency=medium
 
