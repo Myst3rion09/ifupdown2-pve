@@ -7,6 +7,8 @@ BUILDDIR=$(SRCDIR)-$(DEB_VERSION)
 
 GITVERSION:=$(shell git rev-parse HEAD)
 
+ORIG_SRC_TAR=$(PACKAGE)_$(DEB_VERSION_UPSTREAM).orig.tar.gz
+DSC=$(PACKAGE)_$(DEB_VERSION).dsc
 DEB=$(PACKAGE)_$(DEB_VERSION)_all.deb
 
 all: $(DEB)
@@ -24,10 +26,17 @@ $(BUILDDIR): submodule
 	cp -a debian $@.tmp/
 	mv $@.tmp $@
 
-.PHONY: deb
+.PHONY: deb dsc
 deb: $(DEB)
 $(DEB): $(BUILDDIR)
-	cd $(BUILDDIR); dpkg-buildpackage -rfakeroot -b -uc -us
+	cd $(BUILDDIR); dpkg-buildpackage -b -uc -us
+
+$(ORIG_SRC_TAR): $(BUILDDIR)
+	tar czf $(ORIG_SRC_TAR) --exclude="$(BUILDDIR)/debian" $(BUILDDIR)
+
+dsc: $(DSC)
+$(DSC): $(BUILDDIR) $(ORIG_SRC_TAR)
+	cd $(BUILDDIR); dpkg-buildpackage -S -uc -us -d
 
 .PHONY: upload
 upload: $(DEB)
@@ -36,7 +45,7 @@ upload: $(DEB)
 .PHONY: distclean clean
 distclean: clean
 clean:
-	rm -rf $(PACKAGE)-*/ *.deb *.changes *.dsc *.buildinfo
+	rm -rf $(PACKAGE)-*/ *.deb *.dsc *.changes *.buildinfo *.build $(PACKAGE)*.tar.*
 
 .PHONY: dinstall
 dinstall: deb
