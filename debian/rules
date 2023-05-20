@@ -18,15 +18,8 @@ override_dh_install:
 	install --mode=644 debian/ifupdown2-pre.service debian/ifupdown2/lib/systemd/system/
 
 
-override_dh_systemd_start:
-	dh_systemd_start --name=networking --no-start
-
-override_dh_systemd_enable:
-	dh_systemd_enable --name=networking
-
-# above are depreacated and won't be used in DH compat level >= 12
 override_dh_installsystemd:
-	dh_installsystemd --name=networking --no-start
+	dh_installsystemd --name=networking --no-start --no-stop-on-upgrade
 
 override_dh_compress:
 	dh_compress -X.py
