@@ -1,0 +1,20 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Thomas Lamprecht <t.lamprecht@proxmox.com>
+Date: Sat, 20 May 2023 14:56:42 +0200
+Subject: [PATCH] gvgeb: fix python interpreter shebang
+
+Signed-off-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
+---
+ ifupdown2/lib/gvgen.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ifupdown2/lib/gvgen.py b/ifupdown2/lib/gvgen.py
+index bb1b00d..97ee33a 100644
+--- a/ifupdown2/lib/gvgen.py
++++ b/ifupdown2/lib/gvgen.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python
++#!/usr/bin/env python3
+ # -*- coding: utf-8 -*-
+ # $Id$
+ """

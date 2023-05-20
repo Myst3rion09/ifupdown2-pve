@@ -38,7 +38,7 @@ index 0000000..ab6a680
 --- /dev/null
 +++ b/ifupdown2/addons/bridgevlanport.py
 @@ -0,0 +1,17 @@
-+#!/usr/bin/python
++#!/usr/bin/env python3
 +#
 +
 +import os
@@ -61,7 +61,7 @@ index 0000000..efdf569
 --- /dev/null
 +++ b/ifupdown2/addons/mtu.py
 @@ -0,0 +1,17 @@
-+#!/usr/bin/python
++#!/usr/bin/env python3
 +#
 +
 +import os

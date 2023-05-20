@@ -6,4 +6,5 @@ pve/0005-config-tuning.patch
 pve/0006-openvswitch-ovs-ports-condone-regex-exclude-tap-veth.patch
 pve/0007-allow-vlan-tag-inside-vxlan-tunnel.patch
 pve/0008-lacp-bond-remove-bond-min-links-0-warning.patch
+pve/0009-gvgeb-fix-python-interpreter-shebang.patch
 upstream/0001-add-ipv6-slaac-support-inet6-auto-accept_ra.patch
