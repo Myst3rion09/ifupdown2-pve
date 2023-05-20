@@ -85,6 +85,25 @@ postinst_remove_diverts()
     _postinst_remove_diverts "/usr/share/man/man5/interfaces.5.gz"
 }
 
+proxmox_compatibility()
+{
+    perl -e '
+	my $haspve_common; eval { require PVE::INotify; $haspve_common = 1; };
+	exit if !$haspve_common;
+	my $config = PVE::INotify::read_file('interfaces', 1);
+	my $configdata = $config->{data};
+
+	PVE::INotify::write_file('interfaces', $configdata);
+
+	$config = PVE::INotify::read_file('interfaces', 1);
+
+	if (defined($config->{changes})) {
+	    #print $config->{changes};
+	    print "\nnetwork config changes have been detected for ifupdown2 compatibility.\nSaved in /etc/network/interfaces.new for hot-apply or next reboot.\n\n";
+	}
+    ' || true
+}
+
 case "$1" in
     configure)
         fix_dhclient_file_with_space
@@ -92,6 +111,12 @@ case "$1" in
         process_udev
         chmod +x /usr/share/ifupdown2/__main__.py
         postinst_remove_diverts
+        if [ -f "/tmp/.ifupdown2-first-install" ] && [ ! -e /proxmox_install_mode ]; then
+            proxmox_compatibility
+            echo "Reloading network config on first install"
+            ifreload -a
+            rm  /tmp/.ifupdown2-first-install
+        fi
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

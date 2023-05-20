@@ -5,8 +5,9 @@ DefaultDependencies=no
 After=local-fs.target network-pre.target
 Before=shutdown.target network.target network-online.target
 Conflicts=shutdown.target
-Wants=systemd-udev-settle.service
-After=systemd-udev-settle.service
+Requires=ifupdown2-pre.service
+Wants=network.target
+After=local-fs.target network-pre.target systemd-sysctl.service systemd-modules-load.service ifupdown2-pre.service
 
 [Service]
 Type=oneshot
@@ -19,4 +20,5 @@ ExecStop=/usr/share/ifupdown2/sbin/start-networking stop
 ExecReload=/usr/share/ifupdown2/sbin/start-networking reload
 
 [Install]
-WantedBy=basic.target network.target shutdown.target
+WantedBy=multi-user.target network-online.target
+

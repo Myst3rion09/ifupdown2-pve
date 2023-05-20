@@ -18,10 +18,11 @@ submodule:
 
 buildir: $(BUILDDIR)
 $(BUILDDIR): submodule
-	rm -rf $(BUILDDIR)
-	mkdir $(BUILDDIR)
-	cp -a $(SRCDIR)/* $(BUILDDIR)/
-	cp -R debian/* $(BUILDDIR)/debian/
+	rm -rf $@ $@.tmp
+	cp -a $(SRCDIR)/ $@.tmp/
+	rm -rf $@.tmp/debian
+	cp -a debian $@.tmp/
+	mv $@.tmp $@
 
 .PHONY: deb
 deb: $(DEB)
