@@ -3,11 +3,11 @@ include /usr/share/dpkg/pkg-info.mk
 PACKAGE=ifupdown2
 
 SRCDIR=ifupdown2
-BUILDDIR=$(SRCDIR)-$(DEB_VERSION_UPSTREAM)
+BUILDDIR=$(SRCDIR)-$(DEB_VERSION)
 
 GITVERSION:=$(shell git rev-parse HEAD)
 
-DEB=$(PACKAGE)_$(DEB_VERSION_UPSTREAM_REVISION)_all.deb
+DEB=$(PACKAGE)_$(DEB_VERSION)_all.deb
 
 all: $(DEB)
 	@echo $(DEB)
