@@ -1,2 +1,3 @@
 etc/network/ifupdown2/addons.conf /etc/network/ifupdown2/
 etc/network/ifupdown2/ifupdown2.conf /etc/network/ifupdown2/
+debian/proxmox-bridge-mac-from-port.json /var/lib/ifupdown2/policy.d/
