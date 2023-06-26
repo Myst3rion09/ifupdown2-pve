@@ -1,3 +1,13 @@
+ifupdown2 (3.2.0-1+pmx3) bookworm; urgency=medium
+
+  * depend on ethtool by default
+
+  * backport support for rx-vlan-filter in the ethtool plugin
+
+  * backport missing import for the 'traceback' python module in the scheduler
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 26 Jun 2023 20:40:22 +0200
+
 ifupdown2 (3.2.0-1+pmx2) bookworm; urgency=medium
 
   * ship default policy to enable setting the MAC of a bridge to its first
