@@ -1,4 +1,4 @@
-From ac2462f9426fcfcecf3e9d9647c5bb128b44a111 Mon Sep 17 00:00:00 2001
+From 76721af329cab107e339fef5bc783dacb32132dc Mon Sep 17 00:00:00 2001
 From: Alexandre Derumier <aderumier@odiso.com>
 Date: Tue, 9 May 2023 17:48:14 +0200
 Subject: [PATCH] add ipv6 slaac support (inet6 auto && accept_ra)
@@ -13,7 +13,7 @@ https://github.com/CumulusNetworks/ifupdown2/pull/259
 Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
 ---
  etc/network/ifupdown2/addons.conf       |   2 +
- ifupdown2/addons/address.py             | 104 +++++++++++++--
+ ifupdown2/addons/address.py             | 109 +++++++++++++--
  ifupdown2/addons/auto.py                | 168 ++++++++++++++++++++++++
  ifupdown2/addons/dhcp.py                |  18 +--
  ifupdown2/ifupdown/iface.py             |   4 +
@@ -21,7 +21,7 @@ Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
  ifupdown2/lib/nlcache.py                |  63 ++++++++-
  ifupdown2/man/interfaces.5.rst          |   9 ++
  ifupdown2/nlmanager/nlpacket.py         |  24 +++-
- 9 files changed, 368 insertions(+), 26 deletions(-)
+ 9 files changed, 373 insertions(+), 26 deletions(-)
  create mode 100644 ifupdown2/addons/auto.py
 
 diff --git a/etc/network/ifupdown2/addons.conf b/etc/network/ifupdown2/addons.conf
@@ -45,7 +45,7 @@ index 726d63a..67de25f 100644
  down,address
  down,usercmds
 diff --git a/ifupdown2/addons/address.py b/ifupdown2/addons/address.py
-index e71a26f..11e4512 100644
+index e71a26f..473a089 100644
 --- a/ifupdown2/addons/address.py
 +++ b/ifupdown2/addons/address.py
 @@ -188,6 +188,19 @@ class address(AddonWithIpBlackList, moduleBase):
@@ -59,7 +59,7 @@ index e71a26f..11e4512 100644
 +                'example': ['accept-ra 1']
 +            },
 +            'autoconf': {
-+                'help': 'enable ipv6 slaac autoconfiguratoin',
++                'help': 'enable ipv6 slaac autoconfiguration',
 +                'validvals': ['0', '1'],
 +                'default': '0',
 +                'example': ['autoconf 1']
@@ -133,10 +133,11 @@ index e71a26f..11e4512 100644
              if netconf_ipv4_forwarding:
                  self.sysctl_write_forwarding_value_to_proc(ifname, "ipv4", 0)
              if netconf_ipv6_forwarding:
-@@ -979,6 +1014,41 @@ class address(AddonWithIpBlackList, moduleBase):
-                        ifaceobj.status = ifaceStatus.ERROR
-                        self.logger.error('%s: %s' %(ifaceobj.name, str(e)))
+@@ -886,6 +921,43 @@ class address(AddonWithIpBlackList, moduleBase):
+     def sysctl_write_forwarding_value_to_proc(self, ifname, family, value):
+         self.write_file("/proc/sys/net/%s/conf/%s/forwarding" % (family, ifname), "%s\n" % value)
  
++    def _sysctl_slaac(self, ifaceobj):
 +        addr_method = ifaceobj.addr_method
 +        if addr_method not in ["auto"]:
 +
@@ -172,10 +173,28 @@ index e71a26f..11e4512 100644
 +                    ifaceobj.status = ifaceStatus.ERROR
 +                    self.logger.error('%s: %s' %(ifaceobj.name, str(e)))
 +
++
+     def _sysctl_config(self, ifaceobj):
+         setting_default_value = False
+         mpls_enable = ifaceobj.get_attr_value_first('mpls-enable');
+@@ -912,6 +984,7 @@ class address(AddonWithIpBlackList, moduleBase):
+ 
+         if (ifaceobj.link_kind & ifaceLinkKind.BRIDGE):
+             self._set_bridge_forwarding(ifaceobj)
++            self._sysctl_slaac(ifaceobj)
+             return
+         if not self.syntax_check_sysctls(ifaceobj):
+             return
+@@ -979,6 +1052,8 @@ class address(AddonWithIpBlackList, moduleBase):
+                        ifaceobj.status = ifaceStatus.ERROR
+                        self.logger.error('%s: %s' %(ifaceobj.name, str(e)))
+ 
++        self._sysctl_slaac(ifaceobj)
++
      def process_mtu(self, ifaceobj, ifaceobj_getfunc):
  
          if ifaceobj.link_privflags & ifaceLinkPrivFlags.OPENVSWITCH:
-@@ -1016,7 +1086,7 @@ class address(AddonWithIpBlackList, moduleBase):
+@@ -1016,7 +1091,7 @@ class address(AddonWithIpBlackList, moduleBase):
              # no need to go further during perfmode (boot)
              return
  
@@ -184,7 +203,7 @@ index e71a26f..11e4512 100644
              return
  
          if not user_configured_ipv6_addrgen:
-@@ -1213,7 +1283,7 @@ class address(AddonWithIpBlackList, moduleBase):
+@@ -1213,7 +1288,7 @@ class address(AddonWithIpBlackList, moduleBase):
              if not self.cache.link_exists(ifaceobj.name):
                  return
              addr_method = ifaceobj.addr_method
@@ -193,7 +212,7 @@ index e71a26f..11e4512 100644
                  if ifaceobj.get_attr_value_first('address-purge')=='no':
                      addrlist = ifaceobj.get_attr_value('address')
                      for addr in addrlist or []:
-@@ -1326,6 +1396,22 @@ class address(AddonWithIpBlackList, moduleBase):
+@@ -1326,6 +1401,22 @@ class address(AddonWithIpBlackList, moduleBase):
              ifaceobjcurr.update_config_with_status('mpls-enable',
                                                     running_mpls_enable,
                                              mpls_enable != running_mpls_enable)
@@ -216,7 +235,7 @@ index e71a26f..11e4512 100644
          return
  
      def query_check_ipv6_addrgen(self, ifaceobj, ifaceobjcurr):
-@@ -1380,7 +1466,7 @@ class address(AddonWithIpBlackList, moduleBase):
+@@ -1380,7 +1471,7 @@ class address(AddonWithIpBlackList, moduleBase):
  
      def _query_check_address(self, ifaceobj, ifaceobjcurr, ifaceobj_getfunc):
          """ ifquery-check: attribute: "address" """
@@ -622,5 +641,5 @@ index 8972c76..0090529 100644
  
                              # nlmanager doesn't support multiple kernel version
 -- 
-2.30.2
+2.39.2
 
