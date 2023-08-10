@@ -1,3 +1,10 @@
+ifupdown2 (3.2.0-1+pmx4) UNRELEASED; urgency=medium
+
+  * ipv6/slaac: fix accept_ra/autoconf sysctl not being applied on bridge
+    interfaces
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 10 Aug 2023 09:04:25 +0200
+
 ifupdown2 (3.2.0-1+pmx3) bookworm; urgency=medium
 
   * depend on ethtool by default
