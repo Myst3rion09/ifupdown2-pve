@@ -1,4 +1,11 @@
-ifupdown2 (3.2.0-1+pmx4) UNRELEASED; urgency=medium
+ifupdown2 (3.2.0-1+pmx5) bookworm; urgency=medium
+
+  * fix new systemd behavior of assinging random MAC to bond by actively
+    assining the one from the first slave-interface again
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 15 Sep 2023 16:20:25 +0200
+
+ifupdown2 (3.2.0-1+pmx4) bookworm; urgency=medium
 
   * ipv6/slaac: fix accept_ra/autoconf sysctl not being applied on bridge
     interfaces
