@@ -1,3 +1,11 @@
+ifupdown2 (3.2.0-1+pmx6) bookworm; urgency=medium
+
+  * revert patch that tried to fix MAC-addresses for bond interfaces, some
+    network switches and adapters cannot cope with the way it was done, rather
+    set up a systemd policy.
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 15 Nov 2023 08:51:14 +0100
+
 ifupdown2 (3.2.0-1+pmx5) bookworm; urgency=medium
 
   * fix new systemd behavior of assinging random MAC to bond by actively
