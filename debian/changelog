@@ -1,3 +1,12 @@
+ifupdown2 (3.2.0-1+pmx7) bookworm; urgency=medium
+
+  * fix applying some bond mode settings for non-802.3ad variants on ifup
+    (ifreload worked).
+
+  * fix VXLAN addon trying to remove FDB entries on reload with EVPN
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 20 Nov 2023 14:31:11 +0100
+
 ifupdown2 (3.2.0-1+pmx6) bookworm; urgency=medium
 
   * revert patch that tried to fix MAC-addresses for bond interfaces, some
