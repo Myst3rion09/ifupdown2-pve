@@ -1,0 +1,55 @@
+From 1c4ef3796e18625f8f93aa49f071e759120a72ea Mon Sep 17 00:00:00 2001
+From: Stefan Hanreich <s.hanreich@proxmox.com>
+Date: Tue, 4 Jun 2024 16:17:54 +0200
+Subject: [PATCH] main: ignore dpkg files when running hook scripts
+
+Currently ifupdown2 executes scripts that are backed up by dpkg (e.g.
+foo.dpkg-old). This can lead to issues with hook scripts getting
+executed after upgrading ifupdown2 or packages that ship hook scripts
+(e.g. ifenslave).
+
+This also brings the behavior of ifupdown2 more in line with the
+behavior of ifupdown. ifupdown used run-parts for executing the hook
+scripts, which ignores dpkg-created files (among others).
+
+Signed-off-by: Stefan Hanreich <s.hanreich@proxmox.com>
+---
+ ifupdown2/ifupdown/ifupdownmain.py | 4 +++-
+ ifupdown2/ifupdown/utils.py        | 6 ++++++
+ 2 files changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/ifupdown2/ifupdown/ifupdownmain.py b/ifupdown2/ifupdown/ifupdownmain.py
+index 51f5460..e6622f0 100644
+--- a/ifupdown2/ifupdown/ifupdownmain.py
++++ b/ifupdown2/ifupdown/ifupdownmain.py
+@@ -1540,7 +1540,9 @@ class ifupdownMain:
+             try:
+                 module_list = os.listdir(msubdir)
+                 for module in module_list:
+-                    if self.modules.get(module) or module in self.overridden_ifupdown_scripts:
++                    if (self.modules.get(module)
++                        or module in self.overridden_ifupdown_scripts
++                        or utils.is_dpkg_file(module)):
+                         continue
+                     self.script_ops[op].append(msubdir + '/' + module)
+             except Exception:
+diff --git a/ifupdown2/ifupdown/utils.py b/ifupdown2/ifupdown/utils.py
+index 05c7e48..3085e82 100644
+--- a/ifupdown2/ifupdown/utils.py
++++ b/ifupdown2/ifupdown/utils.py
+@@ -212,6 +212,12 @@ class utils():
+         # what we have in the cache (data retrieved via a netlink dump by
+         # nlmanager). nlmanager return all macs in lower-case
+ 
++    _dpkg_suffixes = (".dpkg-old", ".dpkg-dist", ".dpkg-new", ".dpkg-tmp")
++
++    @staticmethod
++    def is_dpkg_file(name):
++        return any(name.endswith(suffix) for suffix in utils._dpkg_suffixes)
++
+     @classmethod
+     def importName(cls, modulename, name):
+         """ Import a named object """
+-- 
+2.39.2
+
