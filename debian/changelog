@@ -1,3 +1,12 @@
+ifupdown2 (3.2.0-1+pmx9) bookworm; urgency=medium
+
+  * fix #5197: do not run scripts ending with .dpkg-{old, new, tmp, dist}
+    mainly to avoid potential issues when upgrading from ifupdown to ifupdown2
+
+  * cherry-pick fix for VNI filter on single VXLAN device
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 05 Jul 2024 09:20:58 +0200
+
 ifupdown2 (3.2.0-1+pmx8) bookworm; urgency=medium
 
   * fix #5009: avoid waiting for stdout eof of /etc/network/ scripts, just
