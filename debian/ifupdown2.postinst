@@ -111,11 +111,10 @@ case "$1" in
         process_udev
         chmod +x /usr/share/ifupdown2/__main__.py
         postinst_remove_diverts
-        if [ -f "/tmp/.ifupdown2-first-install" ] && [ ! -e /proxmox_install_mode ]; then
+        if [ -z "$2" ] && [ ! -e /proxmox_install_mode ]; then
             proxmox_compatibility
             echo "Reloading network config on first install"
             ifreload -a || report_warn "Reloading failed"
-            rm  /tmp/.ifupdown2-first-install
         fi
     ;;
 
