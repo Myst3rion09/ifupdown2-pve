@@ -114,7 +114,7 @@ case "$1" in
         if [ -f "/tmp/.ifupdown2-first-install" ] && [ ! -e /proxmox_install_mode ]; then
             proxmox_compatibility
             echo "Reloading network config on first install"
-            ifreload -a
+            ifreload -a || report_warn "Reloading failed"
             rm  /tmp/.ifupdown2-first-install
         fi
     ;;
