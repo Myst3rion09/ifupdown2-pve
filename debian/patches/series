@@ -1,3 +1,5 @@
+upstream/0001-add-IPv6-SLAAC-support-inet6-auto-and-router-adverti.patch
+upstream/0002-vxlan-Add-support-for-IPv6-vxlan-local-tunnelip.patch
 pve/0001-don-t-remove-tap-veth-fwpr-interfaces-from-bridge-on.patch
 pve/0002-add-dummy-mtu-bridgevlanport-modules.patch
 pve/0003-don-t-remove-bridge-is-tap-veth-are-still-plugged.patch
@@ -8,9 +10,5 @@ pve/0007-allow-vlan-tag-inside-vxlan-tunnel.patch
 pve/0008-lacp-bond-remove-bond-min-links-0-warning.patch
 pve/0009-gvgeb-fix-python-interpreter-shebang.patch
 pve/0010-main-ignore-dpkg-files-when-running-hook-scripts.patch
-upstream/0001-add-ipv6-slaac-support-inet6-auto-accept_ra.patch
-upstream/0001-addons-ethtool-add-rx-vlan-filter.patch
-upstream/0001-scheduler-import-traceback.patch
-upstream/0001-addons-vxlan-fix-compare-between-remote-ips-and-old_.patch
-upstream/0001-scheduler-avoid-waiting-for-stdout-eof-of-etc-networ.patch 
-upstream/0001-vxlan-fix-vni-filter.patch
+pve/0011-setup-drop-faulty-install-line-for-non-existing-ifup.patch
+pve/0012-Revert-addons-bridge-update-bridge-fd-valid-range.patch

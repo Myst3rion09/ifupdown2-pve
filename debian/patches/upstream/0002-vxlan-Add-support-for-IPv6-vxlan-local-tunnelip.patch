@@ -1,0 +1,127 @@
+From acd3065a3c509a57be7077c38c19536c78e351f6 Mon Sep 17 00:00:00 2001
+From: Wido den Hollander <wido@widodh.nl>
+Date: Thu, 17 Apr 2025 10:44:44 +0200
+Subject: [PATCH] vxlan: Add support for IPv6 vxlan-local-tunnelip
+
+This commit adds the option to pass an IPv6 address instead of an IPv4 address to use as
+local tunnel IP address. With this change it's possible to use IPv6 as the underlay for
+a VXLAN based network without the need for IPv4.
+
+Upstream-Link: https://github.com/CumulusNetworks/ifupdown2/pull/315
+---
+ ifupdown2/addons/vxlan.py | 12 +++++++-----
+ ifupdown2/lib/iproute2.py | 23 ++++++++++++++++-------
+ 2 files changed, 23 insertions(+), 12 deletions(-)
+
+diff --git a/ifupdown2/addons/vxlan.py b/ifupdown2/addons/vxlan.py
+index 4cab0332..2f9174f8 100644
+--- a/ifupdown2/addons/vxlan.py
++++ b/ifupdown2/addons/vxlan.py
+@@ -51,7 +51,7 @@ class vxlan(Vxlan, moduleBase):
+             },
+             "vxlan-local-tunnelip": {
+                 "help": "vxlan local tunnel ip",
+-                "validvals": ["<ipv4>"],
++                "validvals": ["<ipv4>", "<ipv6>"],
+                 "example": ["vxlan-local-tunnelip 172.16.20.103"]
+             },
+             "vxlan-svcnodeip": {
+@@ -547,7 +547,7 @@ class vxlan(Vxlan, moduleBase):
+
+         if local:
+             try:
+-                local = ipnetwork.IPv4Address(local)
++                local = ipnetwork.IPAddress(local)
+
+                 if local.initialized_with_prefixlen:
+                     self.logger.warning("%s: vxlan-local-tunnelip %s: netmask ignored" % (ifname, local))
+@@ -1182,7 +1182,8 @@ class vxlan(Vxlan, moduleBase):
+                         vxlan_physdev,
+                         user_request_vxlan_info_data.get(Link.IFLA_VXLAN_PORT),
+                         vxlan_vnifilter,
+-                        vxlan_ttl
++                        vxlan_ttl,
++                        local.version
+                     )
+                 elif ifaceobj.link_privflags & ifaceLinkPrivFlags.L3VXI:
+                     self.iproute2.link_add_l3vxi(
+@@ -1192,7 +1193,8 @@ class vxlan(Vxlan, moduleBase):
+                         group.ip if group else None,
+                         vxlan_physdev,
+                         user_request_vxlan_info_data.get(Link.IFLA_VXLAN_PORT),
+-                        vxlan_ttl
++                        vxlan_ttl,
++                        local.version
+                     )
+                 else:
+                     try:
+@@ -1245,7 +1247,7 @@ class vxlan(Vxlan, moduleBase):
+         if remoteips:
+             try:
+                 for remoteip in remoteips:
+-                    ipnetwork.IPv4Address(remoteip)
++                    ipnetwork.IPAddress(remoteip)
+             except Exception as e:
+                 self.log_error('%s: vxlan-remoteip: %s' % (ifaceobj.name, str(e)))
+         else:
+diff --git a/ifupdown2/lib/iproute2.py b/ifupdown2/lib/iproute2.py
+index 5f1d6006..d40f51d9 100644
+--- a/ifupdown2/lib/iproute2.py
++++ b/ifupdown2/lib/iproute2.py
+@@ -283,7 +283,12 @@ class IPRoute2(Cache, Requirements):
+
+     ###
+
+-    def link_add_single_vxlan(self, link_exists, ifname, ip, group, physdev, port, vnifilter="off", ttl=None):
++    def link_add_single_vxlan(self, link_exists, ifname, ip, group, physdev, port, vnifilter="off", ttl=None, ipversion=4):
++        cmd = []
++
++        if ipversion == 6:
++            cmd.append("-6")
++
+         if link_exists:
+             self.logger.info("updating single vxlan device: %s" % ifname)
+
+@@ -291,11 +296,10 @@ class IPRoute2(Cache, Requirements):
+             # drop the external keyword:
+             # $ ip link set dev vxlan0 type vxlan external local 27.0.0.242 dev ipmr-lo
+             # Error: vxlan: cannot change COLLECT_METADATA flag.
+-            cmd = ["link set dev %s type vxlan" % ifname]
++            cmd.append("link set dev %s type vxlan" % ifname)
+         else:
+             self.logger.info("creating single vxlan device: %s" % ifname)
+-
+-            cmd = ["link add dev %s type vxlan external" % ifname]
++            cmd.append("link add dev %s type vxlan external" % ifname)
+
+             # when changing local ip, if we specify vnifilter we get:
+             # Error: vxlan: cannot change flag.
+@@ -321,17 +325,22 @@ class IPRoute2(Cache, Requirements):
+         self.__execute_or_batch(utils.ip_cmd, " ".join(cmd))
+         self.__update_cache_after_link_creation(ifname, "vxlan")
+
+-    def link_add_l3vxi(self, link_exists, ifname, ip, group, physdev, port, ttl=None):
++    def link_add_l3vxi(self, link_exists, ifname, ip, group, physdev, port, ttl=None, ipversion=4):
+         self.logger.info("creating l3vxi device: %s" % ifname)
+
++        cmd = []
++
++        if ipversion == 6:
++            cmd.append("-6")
++
+         if link_exists:
+             # When updating an SVD we need to use `ip link set` and we have to
+             # drop the external keyword:
+             # $ ip link set dev vxlan0 type vxlan external local 27.0.0.242 dev ipmr-lo
+             # Error: vxlan: cannot change COLLECT_METADATA flag.
+-            cmd = ["link set dev %s type vxlan" % ifname]
++            cmd.append("link set dev %s type vxlan" % ifname)
+         else:
+-            cmd = ["link add dev %s type vxlan external vnifilter" % ifname]
++            cmd.append("link add dev %s type vxlan external vnifilter" % ifname)
+             # when changing local ip, if we specify vnifilter we get:
+             # Error: vxlan: cannot change flag.
+             # So we are only setting this attribute on vxlan creation
+--
+2.48.1
+

@@ -1,0 +1,55 @@
+From 691b3a80713f4afb144f058610fc0a83ceb14be9 Mon Sep 17 00:00:00 2001
+From: Christoph Heiss <c.heiss@proxmox.com>
+Date: Thu, 17 Apr 2025 11:49:52 +0200
+Subject: [PATCH] Revert "addons: bridge: update bridge-fd valid range"
+
+This reverts commit 74d286d18f89d4f54c10dac2d2284408d46b5c0e.
+
+When STP is disabled on the bridge (i.e. `bridge-stp off`), 0 is
+actually a valid value for the bridge forward delay, aka. `bridge-fd 0`.
+
+According to kernel commit
+
+  8a921265e ("Revert "bridge: Allow forward delay to be cfgd when STP enabled"")
+
+this is actually by design [0], to immediately mark the bridge as
+forwarding with STP turned off.
+
+So revert the broken upstream commit.
+
+[0] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=8a921265e2cd31e61a0c2eda582af54c5bfef897
+
+Signed-off-by: Christoph Heiss <c.heiss@proxmox.com>
+---
+ debian/changelog           | 1 -
+ ifupdown2/addons/bridge.py | 2 +-
+ 2 files changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/debian/changelog b/debian/changelog
+index ed0d6622..9e8f12a0 100644
+--- a/debian/changelog
++++ b/debian/changelog
+@@ -39,7 +39,6 @@ ifupdown2 (3.3.0) unstable; urgency=medium
+   * Fix: keep link down after mac change if 'link-down yes' is specified
+   * Fix: addressvirtual: stale mac detection is missing vrr without ip
+   * Fix: bond: warn if sub interface is detected on bond slave
+-  * Fix: bridge: update bridge-fd valid range to 2-255
+ 
+  -- Julien Fortin <jfortin@nvidia.com>  Thu, 04 May 2023 23:42:42 -0700
+ 
+diff --git a/ifupdown2/addons/bridge.py b/ifupdown2/addons/bridge.py
+index e70710ee..5a38d56c 100644
+--- a/ifupdown2/addons/bridge.py
++++ b/ifupdown2/addons/bridge.py
+@@ -98,7 +98,7 @@ class bridge(Bridge, moduleBase):
+             },
+             "bridge-fd": {
+                 "help": "bridge forward delay",
+-                "validrange": ["2", "255"],
++                "validrange": ["0", "255"],
+                 "example": ["bridge-fd 15"],
+                 "default": "15"
+             },
+-- 
+2.48.1
+

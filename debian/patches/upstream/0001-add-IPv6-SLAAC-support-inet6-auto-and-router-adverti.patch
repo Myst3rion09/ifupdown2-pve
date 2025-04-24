@@ -1,31 +1,72 @@
-From fd844b0557337e714a7e11ed6c39bc8164709a46 Mon Sep 17 00:00:00 2001
-From: Alexandre Derumier <aderumier@odiso.com>
-Date: Tue, 9 May 2023 17:48:14 +0200
-Subject: add ipv6 slaac support (inet6 auto && accept_ra)
+From b9657e58a6f46dbab25a045ceb52b8a22994a0e3 Mon Sep 17 00:00:00 2001
+From: Christoph Heiss <c.heiss@proxmox.com>
+Date: Fri, 11 Apr 2025 13:57:07 +0200
+Subject: [PATCH] add IPv6 SLAAC support (inet6 auto and router advertisements)
 
-This should fix a lot of users request in the forum,
-and also fix upgrade from ifupdown1 to ifupdown2 if user have "inet6 auto" in configuration.
-(default on stock debian install, this break pbs install on top of stock debian)
+This should fix a lot of users request in the forum, and also fix
+upgrade from ifupdown1 to ifupdown2 if user have "inet6 auto" in
+configuration. (default on stock debian install, this break pbs install
+on top of stock debian) The current code is buggy if an interface only
+use ipv6.
 
-upstream pull request:
-
-https://github.com/CumulusNetworks/ifupdown2/pull/259
-Signed-off-by: Alexandre Derumier <aderumier@odiso.com>
+Upstream-Link: https://github.com/CumulusNetworks/ifupdown2/pull/325
+Authored-By: Alexandre Derumier <aderumier@odiso.com>
+Co-Authored-By: Christoph Heiss <c.heiss@proxmox.com>
+Signed-off-by: Christoph Heiss <c.heiss@proxmox.com>
 ---
+ .gitignore                              |   9 ++
+ Makefile                                |   4 +
  etc/network/ifupdown2/addons.conf       |   2 +
- ifupdown2/addons/address.py             | 108 +++++++++++++--
- ifupdown2/addons/auto.py                | 168 ++++++++++++++++++++++++
+ ifupdown2/addons/address.py             | 114 ++++++++++++++--
+ ifupdown2/addons/auto.py                | 164 ++++++++++++++++++++++++
  ifupdown2/addons/dhcp.py                |  18 +--
  ifupdown2/ifupdown/iface.py             |   4 +
  ifupdown2/ifupdown/networkinterfaces.py |   2 +-
  ifupdown2/lib/nlcache.py                |  63 ++++++++-
  ifupdown2/man/interfaces.5.rst          |   9 ++
  ifupdown2/nlmanager/nlpacket.py         |  24 +++-
- 9 files changed, 372 insertions(+), 26 deletions(-)
+ 11 files changed, 383 insertions(+), 30 deletions(-)
  create mode 100644 ifupdown2/addons/auto.py
 
+diff --git a/.gitignore b/.gitignore
+index 23bc3fa4..d72cbc39 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -26,6 +26,15 @@ wheels/
+ .installed.cfg
+ *.egg
+ MANIFEST
++.pybuild/
++man/
++
++# Debian packaging
++debian/files
++debian/.debhelper/
++debian/*.debhelper
++debian/*.substvars
++debian/ifupdown2
+ 
+ # PyInstaller
+ #  Usually these files are written by a python script from a template
+diff --git a/Makefile b/Makefile
+index e7e2bf4d..cf48426e 100644
+--- a/Makefile
++++ b/Makefile
+@@ -35,8 +35,12 @@ clean-build: ## remove build artifacts
+ 	rm -fr build/
+ 	rm -fr dist/
+ 	rm -fr .eggs/
++	rm -fr .pybuild/
++	rm -fr man/
+ 	find . -name '*.egg-info' -exec rm -fr {} +
+ 	find . -name '*.egg' -exec rm -f {} +
++	rm -fr debian/files debian/.debhelper debian/ifupdown2 debian/ifupdown2.substvars
++	find debian -name '*.debhelper' -exec rm -f {} +
+ 
+ clean-pyc: ## remove Python file artifacts
+ 	find . -name '*.pyc' -exec rm -f {} +
 diff --git a/etc/network/ifupdown2/addons.conf b/etc/network/ifupdown2/addons.conf
-index a8f2317..5a3964d 100644
+index 726d63a0..67de25fe 100644
 --- a/etc/network/ifupdown2/addons.conf
 +++ b/etc/network/ifupdown2/addons.conf
 @@ -15,6 +15,7 @@ pre-up,mstpctl
@@ -36,7 +77,7 @@ index a8f2317..5a3964d 100644
  pre-up,address
  up,dhcp
  up,address
-@@ -30,6 +31,7 @@ pre-down,usercmds
+@@ -28,6 +29,7 @@ pre-down,usercmds
  pre-down,vxrd
  pre-down,dhcp
  down,ppp
@@ -45,32 +86,33 @@ index a8f2317..5a3964d 100644
  down,address
  down,usercmds
 diff --git a/ifupdown2/addons/address.py b/ifupdown2/addons/address.py
-index e71a26f..bb5589e 100644
+index 3d961032..500fdf3b 100644
 --- a/ifupdown2/addons/address.py
 +++ b/ifupdown2/addons/address.py
-@@ -188,6 +188,19 @@ class address(AddonWithIpBlackList, moduleBase):
-                 'default': 'off',
-                 'example': ['arp-accept on']
-             },
+@@ -194,7 +194,19 @@ class address(AddonWithIpBlackList, moduleBase):
+                 "validvals": ['on', 'off', 'yes', 'no', '0', '1'],
+                 "default": "no",
+                 "aliases": ["disable-ip6"]
+-            }
++            },
 +            'accept-ra': {
-+                'help': 'accept ipv6 router advertisement',
++                'help': 'Accept IPv6 router advertisements',
 +                'validvals': ['0', '1', '2'],
 +                'default': '0',
 +                'example': ['accept-ra 1']
 +            },
 +            'autoconf': {
-+                'help': 'enable ipv6 slaac autoconfiguration',
++                'help': 'Enable IPv6 slaac autoconfiguration',
 +                'validvals': ['0', '1'],
 +                'default': '0',
 +                'example': ['autoconf 1']
 +            },
-+
          }
      }
  
-@@ -256,6 +269,16 @@ class address(AddonWithIpBlackList, moduleBase):
-             attr="check_l3_svi_ip_forwarding")
-         )
+@@ -272,6 +284,15 @@ class address(AddonWithIpBlackList, moduleBase):
+ 
+         self.mac_regex = re.compile(r"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$")
  
 +        try:
 +            self.default_accept_ra = str(self.sysctl_get('net.ipv6.conf.all.accept_ra'))
@@ -81,11 +123,10 @@ index e71a26f..bb5589e 100644
 +            self.default_autoconf = str(self.sysctl_get('net.ipv6.conf.all.autoconf'))
 +        except Exception:
 +            self.default_autoconf = 1
-+
+ 
      def __policy_get_default_mtu(self):
          default_mtu = policymanager.policymanager_api.get_attr_default(
-             module_name=self.__class__.__name__,
-@@ -627,21 +650,31 @@ class address(AddonWithIpBlackList, moduleBase):
+@@ -682,21 +703,31 @@ class address(AddonWithIpBlackList, moduleBase):
                  if force_reapply:
                      self.__add_ip_addresses_with_attributes(ifaceobj, ifname, user_config_ip_addrs_list)
                  return
@@ -122,7 +163,15 @@ index e71a26f..bb5589e 100644
                      self.netlink.addr_del(ifname, addr)
              except Exception as e:
                  self.log_warn(str(e))
-@@ -872,7 +905,9 @@ class address(AddonWithIpBlackList, moduleBase):
+@@ -923,14 +954,15 @@ class address(AddonWithIpBlackList, moduleBase):
+                 self._propagate_mtu_to_upper_devs(ifaceobj, self.default_mtu, self.default_mtu_int, ifaceobj_getfunc)
+ 
+     def _set_bridge_forwarding(self, ifaceobj):
+-        """ set ip forwarding to 0 if bridge interface does not have a
+-        ip nor svi """
++        """ Disable IP forwarding if bridge interface does not have a IP nor SVI. """
+         ifname = ifaceobj.name
+ 
          netconf_ipv4_forwarding = self.cache.get_netconf_forwarding(socket.AF_INET, ifname)
          netconf_ipv6_forwarding = self.cache.get_netconf_forwarding(socket.AF_INET6, ifname)
  
@@ -133,7 +182,7 @@ index e71a26f..bb5589e 100644
              if netconf_ipv4_forwarding:
                  self.sysctl_write_forwarding_value_to_proc(ifname, "ipv4", 0)
              if netconf_ipv6_forwarding:
-@@ -886,6 +921,43 @@ class address(AddonWithIpBlackList, moduleBase):
+@@ -944,6 +976,41 @@ class address(AddonWithIpBlackList, moduleBase):
      def sysctl_write_forwarding_value_to_proc(self, ifname, family, value):
          self.write_file("/proc/sys/net/%s/conf/%s/forwarding" % (family, ifname), "%s\n" % value)
  
@@ -142,6 +191,8 @@ index e71a26f..bb5589e 100644
 +        if addr_method not in ["auto"]:
 +
 +            try:
++                sysctl_ifname = '/'.join(ifaceobj.name.split("."))
++
 +                running_accept_ra = self.cache.get_link_inet6_accept_ra(ifaceobj)
 +                if running_accept_ra == '':
 +                    running_accept_ra = self.default_accept_ra
@@ -150,9 +201,7 @@ index e71a26f..bb5589e 100644
 +                    accept_ra = self.default_accept_ra
 +
 +                if running_accept_ra != accept_ra:
-+                    self.sysctl_set('net.ipv6.conf.%s.accept_ra'
-+                                    %('/'.join(ifaceobj.name.split("."))),
-+                                    accept_ra)
++                    self.sysctl_set(f'net.ipv6.conf.{sysctl_ifname}.accept_ra', accept_ra)
 +                    self.cache.update_link_inet6_accept_ra(ifaceobj.name, accept_ra)
 +
 +                running_autoconf = self.cache.get_link_inet6_autoconf(ifaceobj)
@@ -163,9 +212,7 @@ index e71a26f..bb5589e 100644
 +                    autoconf = self.default_autoconf
 +
 +                if running_autoconf != autoconf:
-+                    self.sysctl_set('net.ipv6.conf.%s.autoconf'
-+                                    %('/'.join(ifaceobj.name.split("."))),
-+                                    autoconf)
++                    self.sysctl_set(f'net.ipv6.conf.{sysctl_ifname}.autoconf', autoconf)
 +                    self.cache.update_link_inet6_autoconf(ifaceobj.name, autoconf)
 +
 +            except Exception as e:
@@ -177,7 +224,16 @@ index e71a26f..bb5589e 100644
      def _sysctl_config(self, ifaceobj):
          setting_default_value = False
          mpls_enable = ifaceobj.get_attr_value_first('mpls-enable');
-@@ -979,6 +1051,8 @@ class address(AddonWithIpBlackList, moduleBase):
+@@ -970,7 +1037,7 @@ class address(AddonWithIpBlackList, moduleBase):
+ 
+         if (ifaceobj.link_kind & ifaceLinkKind.BRIDGE):
+             self._set_bridge_forwarding(ifaceobj)
+-
++            self._sysctl_slaac(ifaceobj)
+         if not self.syntax_check_sysctls(ifaceobj):
+             return
+         if not self.syntax_check_l3_svi_ip_forward(ifaceobj):
+@@ -1037,6 +1104,8 @@ class address(AddonWithIpBlackList, moduleBase):
                         ifaceobj.status = ifaceStatus.ERROR
                         self.logger.error('%s: %s' %(ifaceobj.name, str(e)))
  
@@ -186,7 +242,7 @@ index e71a26f..bb5589e 100644
      def process_mtu(self, ifaceobj, ifaceobj_getfunc):
  
          if ifaceobj.link_privflags & ifaceLinkPrivFlags.OPENVSWITCH:
-@@ -1016,7 +1090,7 @@ class address(AddonWithIpBlackList, moduleBase):
+@@ -1074,7 +1143,7 @@ class address(AddonWithIpBlackList, moduleBase):
              # no need to go further during perfmode (boot)
              return
  
@@ -195,7 +251,7 @@ index e71a26f..bb5589e 100644
              return
  
          if not user_configured_ipv6_addrgen:
-@@ -1213,7 +1287,7 @@ class address(AddonWithIpBlackList, moduleBase):
+@@ -1330,7 +1399,7 @@ class address(AddonWithIpBlackList, moduleBase):
              if not self.cache.link_exists(ifaceobj.name):
                  return
              addr_method = ifaceobj.addr_method
@@ -204,10 +260,11 @@ index e71a26f..bb5589e 100644
                  if ifaceobj.get_attr_value_first('address-purge')=='no':
                      addrlist = ifaceobj.get_attr_value('address')
                      for addr in addrlist or []:
-@@ -1326,6 +1400,22 @@ class address(AddonWithIpBlackList, moduleBase):
+@@ -1450,6 +1519,25 @@ class address(AddonWithIpBlackList, moduleBase):
              ifaceobjcurr.update_config_with_status('mpls-enable',
                                                     running_mpls_enable,
                                              mpls_enable != running_mpls_enable)
++        return
 +
 +        accept_ra = ifaceobj.get_attr_value_first('accept-ra')
 +        if accept_ra:
@@ -224,10 +281,12 @@ index e71a26f..bb5589e 100644
 +            ifaceobjcurr.update_config_with_status('autoconf',
 +                                                   running_autoconf,
 +                                            autoconf != running_autoconf)
-         return
++
++        return
  
      def query_check_ipv6_addrgen(self, ifaceobj, ifaceobjcurr):
-@@ -1380,7 +1470,7 @@ class address(AddonWithIpBlackList, moduleBase):
+         ipv6_addrgen = ifaceobj.get_attr_value_first('ipv6-addrgen')
+@@ -1517,7 +1605,7 @@ class address(AddonWithIpBlackList, moduleBase):
  
      def _query_check_address(self, ifaceobj, ifaceobjcurr, ifaceobj_getfunc):
          """ ifquery-check: attribute: "address" """
@@ -238,15 +297,13 @@ index e71a26f..bb5589e 100644
          if ifaceobj_getfunc:
 diff --git a/ifupdown2/addons/auto.py b/ifupdown2/addons/auto.py
 new file mode 100644
-index 0000000..02e6ca4
+index 00000000..b54becdb
 --- /dev/null
 +++ b/ifupdown2/addons/auto.py
-@@ -0,0 +1,168 @@
+@@ -0,0 +1,164 @@
 +#!/usr/bin/env python3
 +#
 +
-+import re
-+import time
 +import socket
 +
 +try:
@@ -274,7 +331,7 @@ index 0000000..02e6ca4
 +
 +
 +class auto(Addon, moduleBase):
-+    """ ifupdown2 addon module to configure slaac on inet6 interface """
++    """ ifupdown2 addon module to configure SLAAC on inet6 interfaces """
 +
 +    def __init__(self, *args, **kargs):
 +        Addon.__init__(self)
@@ -291,25 +348,23 @@ index 0000000..02e6ca4
 +    def _up(self, ifaceobj):
 +
 +        if ifaceobj.link_privflags & ifaceLinkPrivFlags.KEEP_LINK_DOWN:
-+            self.logger.info("%s: skipping auto configuration: link-down yes" % ifaceobj.name)
++            self.logger.info(f'{ifaceobj.name}: skipping auto configuration: link-down yes')
 +            return
 +
 +        try:
 +            if 'inet6' in ifaceobj.addr_family:
++                sysctl_ifname = '/'.join(ifaceobj.name.split("."))
++
 +                running_accept_ra = self.cache.get_link_inet6_accept_ra(ifaceobj)
 +                if running_accept_ra != '2':
 +                    accept_ra = '2'
-+                    self.sysctl_set('net.ipv6.conf.%s.accept_ra'
-+                                    %('/'.join(ifaceobj.name.split("."))),
-+                                    accept_ra)
++                    self.sysctl_set(f'net.ipv6.conf.{sysctl_ifname}.accept_ra', accept_ra)
 +                    self.cache.update_link_inet6_accept_ra(ifaceobj.name, accept_ra)
 +
 +                running_autoconf = self.cache.get_link_inet6_autoconf(ifaceobj)
 +                if running_autoconf != '1':
 +                    autoconf = '1'
-+                    self.sysctl_set('net.ipv6.conf.%s.autoconf'
-+                                    %('/'.join(ifaceobj.name.split("."))),
-+                                    autoconf)
++                    self.sysctl_set(f'net.ipv6.conf.{sysctl_ifname}.autoconf', autoconf)
 +                    self.cache.update_link_inet6_autoconf(ifaceobj.name, autoconf)
 +
 +        except Exception as e:
@@ -348,7 +403,7 @@ index 0000000..02e6ca4
 +        return list(self._run_ops.keys())
 +
 +    def run(self, ifaceobj, operation, query_ifaceobj=None, **extra_args):
-+        """ run dhcp configuration on the interface object passed as argument
++        """ Run DHCP configuration on the interface object passed as argument.
 +
 +        Args:
 +            **ifaceobj** (object): iface object
@@ -357,12 +412,12 @@ index 0000000..02e6ca4
 +                                 'query-running'
 +
 +        Kwargs:
-+            **query_ifaceobj** (object): query check ifaceobject. This is only
++            **query_ifaceobj** (object): Query check ifaceobject. This is only
 +                valid when op is 'query-checkcurr'. It is an object same as
-+                ifaceobj, but contains running attribute values and its config
-+                status. The modules can use it to return queried running state
-+                of interfaces. status is success if the running state is same
-+                as user required state in ifaceobj. error otherwise.
++                ifaceobj, but contains current attribute values and its config
++                status. The module can use it to return the queried running
++                state of interfaces. Returns 'SUCCESS' if the running state is
++                the same as user-required state in ifaceobj, 'ERROR' otherwise.
 +        """
 +        op_handler = self._run_ops.get(operation)
 +        if not op_handler:
@@ -397,7 +452,7 @@ index 0000000..02e6ca4
 +            if syslog_log_level >= logging.INFO:
 +                log_manager.set_level_syslog(logging.INFO)
 +
-+            self.logger.info("%s: enabling syslog for auto configuration" % ifaceobj.name)
++            self.logger.info(f'{ifaceobj.name}: enabling syslog for auto configuration')
 +
 +        try:
 +            if operation == 'query-checkcurr':
@@ -411,10 +466,10 @@ index 0000000..02e6ca4
 +            elif disable_syslog_on_exit is False:
 +                log_manager.set_level_syslog(syslog_log_level)
 diff --git a/ifupdown2/addons/dhcp.py b/ifupdown2/addons/dhcp.py
-index a5bf860..22bbdb4 100644
+index 9b2f5f9b..cff81b40 100644
 --- a/ifupdown2/addons/dhcp.py
 +++ b/ifupdown2/addons/dhcp.py
-@@ -193,20 +193,10 @@ class dhcp(Addon, moduleBase):
+@@ -204,20 +204,10 @@ class dhcp(Addon, moduleBase):
                      self.logger.info('dhclient6 already running on %s. '
                                       'Not restarting.' % ifaceobj.name)
                  else:
@@ -440,7 +495,7 @@ index a5bf860..22bbdb4 100644
                      #make sure the configured interface/link is up.
                      if timeout > 1:
 diff --git a/ifupdown2/ifupdown/iface.py b/ifupdown2/ifupdown/iface.py
-index 07bd067..325e6c3 100644
+index e18b8151..4900a5d3 100644
 --- a/ifupdown2/ifupdown/iface.py
 +++ b/ifupdown2/ifupdown/iface.py
 @@ -289,6 +289,8 @@ class ifaceJsonEncoder(json.JSONEncoder):
@@ -452,7 +507,7 @@ index 07bd067..325e6c3 100644
              else:
                  retifacedict['addr_method'] = o.addr_method
          if o.addr_family:
-@@ -843,6 +845,8 @@ class iface():
+@@ -851,6 +853,8 @@ class iface():
                  # both inet and inet6 addr_family
                  if addr_method and family == 'inet' and 'dhcp' in addr_method:
                      addr_method = 'dhcp'
@@ -462,10 +517,10 @@ index 07bd067..325e6c3 100644
                                    addr_method=addr_method,
                                    with_status=with_status,
 diff --git a/ifupdown2/ifupdown/networkinterfaces.py b/ifupdown2/ifupdown/networkinterfaces.py
-index 2bebe39..3803590 100644
+index c0c8ad96..37e73140 100644
 --- a/ifupdown2/ifupdown/networkinterfaces.py
 +++ b/ifupdown2/ifupdown/networkinterfaces.py
-@@ -30,7 +30,7 @@ class networkInterfaces():
+@@ -35,7 +35,7 @@ class networkInterfaces():
      """ debian ifupdown /etc/network/interfaces file parser """
  
      _addrfams = {'inet' : ['static', 'manual', 'loopback', 'dhcp', 'dhcp6', 'ppp', 'tunnel'],
@@ -475,7 +530,7 @@ index 2bebe39..3803590 100644
  
      def __init__(self, interfacesfile='/etc/network/interfaces',
 diff --git a/ifupdown2/lib/nlcache.py b/ifupdown2/lib/nlcache.py
-index 0b1c6d2..0d2f624 100644
+index e2fd5681..e0235573 100644
 --- a/ifupdown2/lib/nlcache.py
 +++ b/ifupdown2/lib/nlcache.py
 @@ -152,7 +152,7 @@ class _NetlinkCache:
@@ -563,7 +618,7 @@ index 0b1c6d2..0d2f624 100644
          try:
              with self._cache_lock:
 diff --git a/ifupdown2/man/interfaces.5.rst b/ifupdown2/man/interfaces.5.rst
-index 262d726..ca461ea 100644
+index 262d7265..ca461eae 100644
 --- a/ifupdown2/man/interfaces.5.rst
 +++ b/ifupdown2/man/interfaces.5.rst
 @@ -106,6 +106,12 @@ METHODS
@@ -590,7 +645,7 @@ index 262d726..ca461ea 100644
          source /etc/network/interfaces.d/*
  
 diff --git a/ifupdown2/nlmanager/nlpacket.py b/ifupdown2/nlmanager/nlpacket.py
-index 8972c76..0090529 100644
+index a2e2b677..65cbb9a9 100644
 --- a/ifupdown2/nlmanager/nlpacket.py
 +++ b/ifupdown2/nlmanager/nlpacket.py
 @@ -1818,6 +1818,15 @@ class AttributeIFLA_AF_SPEC(Attribute):
@@ -633,5 +688,5 @@ index 8972c76..0090529 100644
  
                              # nlmanager doesn't support multiple kernel version
 -- 
-2.39.2
+2.48.1
 

@@ -1,0 +1,29 @@
+From b2a05684c6dccab03aba06d9a424f9d79208d922 Mon Sep 17 00:00:00 2001
+From: Christoph Heiss <c.heiss@proxmox.com>
+Date: Fri, 11 Apr 2025 12:43:30 +0200
+Subject: [PATCH] setup: drop faulty install line for non-existing ifupdown2d
+
+This file/executable does not actually exist, seems like a bogus sync
+from internal branches.
+
+Upstream-Bug: https://github.com/CumulusNetworks/ifupdown2/issues/324
+Signed-off-by: Christoph Heiss <c.heiss@proxmox.com>
+---
+ setup.py | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/setup.py b/setup.py
+index b555c7b2..97fe7003 100755
+--- a/setup.py
++++ b/setup.py
+@@ -30,7 +30,6 @@ def build_deb_package():
+ 
+ 
+ if build_deb_package():
+-    DATA_FILES.append(('/usr/share/ifupdown2/', ['ifupdown2/ifupdown2d']))
+     DATA_FILES.append(('/usr/share/ifupdown2/sbin/', ['ifupdown2/sbin/start-networking']))
+ else:
+     ENTRY_POINTS = {
+-- 
+2.48.1
+
